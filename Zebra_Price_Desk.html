@@ -1,0 +1,4468 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta name="theme-color" content="#000000" />
+
+  <title>Zebra Price Desk | Intcomex</title>
+
+
+
+  <!-- Dependencias externas de React, Babel standalone y bibliotecas de exportación -->
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+
+
+  <style>
+
+    :root {
+
+      --bg: #F3F5F7;
+
+      --surface: #FFFFFF;
+
+      --surface-2: #F7F9FB;
+
+      --surface-3: #E9EEF3;
+
+      --line: rgba(15, 23, 42, .12);
+
+      --text: #111827;
+
+      --muted: #566170;
+
+      --muted-2: #7B8794;
+
+      --yellow: #0073E6;
+
+      --yellow-hover: #005FBE;
+
+      --blue: #0073E6;
+
+      --green: #278A42;
+
+      --red: #C43D4B;
+
+      --shadow: 0 14px 38px rgba(15, 23, 42, .07);
+
+      color-scheme: light;
+
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-height: 100%; background: var(--bg); }
+
+    body {
+
+      margin: 0;
+
+      min-height: 100vh;
+
+      background:
+
+        radial-gradient(circle at 92% -8%, rgba(0,115,230,.07), transparent 27%),
+
+        linear-gradient(180deg, #F8FAFC 0%, #F1F4F7 100%);
+
+      color: var(--text);
+
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    }
+
+    button, input, textarea, select { font: inherit; }
+
+    button { cursor: pointer; }
+
+    button:disabled { cursor: not-allowed; }
+
+    a { color: inherit; }
+
+    
+
+    /* Layout principal */
+
+    .app-shell { width: 100%; min-height: 100vh; padding-bottom: 38px; background: transparent; }
+
+    .top-alert {
+
+      display: flex; justify-content: center; align-items: center; gap: 9px;
+
+      padding: 9px 16px; background: #000000; color: #FFFFFF;
+
+      text-align: center; font-size: 10px; font-weight: 900;
+
+      letter-spacing: .13em; text-transform: uppercase;
+
+      border-bottom: 3px solid #0073E6;
+
+    }
+
+    .notice-bar {
+
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;
+
+      padding: 12px max(22px, calc((100% - 1320px)/2));
+
+      background: #FFFFFF; border-bottom: 1px solid #E2E7ED;
+
+      color: #343B45; font-size: 11px; font-weight: 600;
+
+    }
+
+    .notice-copy { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+
+    .notice-tag {
+
+      color: #0068D1; border: 1px solid rgba(0,115,230,.22);
+
+      background: rgba(0,115,230,.07); border-radius: 999px;
+
+      padding: 4px 9px; font-size: 9px; font-weight: 900;
+
+      letter-spacing: .08em; text-transform: uppercase;
+
+    }
+
+    .notice-link {
+
+      display: inline-flex; align-items: center; gap: 7px;
+
+      padding: 8px 11px; background: #F1F6FC; border: 1px solid rgba(0,115,230,.2);
+
+      border-radius: 10px; color: #0068D1; text-decoration: none; transition: .18s ease;
+
+    }
+
+    .notice-link:hover { background: #E4F0FC; transform: translateY(-1px); }
+
+    
+
+    /* Encabezado */
+
+    .header { position: relative; z-index: 5; background: rgba(0,0,0,.97); border-bottom: 1px solid rgba(255,255,255,.12); box-shadow: 0 8px 25px rgba(0,0,0,.12); }
+
+    .header-inner { max-width: 1320px; margin: auto; padding: 17px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+
+    .brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+
+    .brand-name-block { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+
+    .brand-title { margin: 0; font-size: 19px; line-height: 1.1; font-weight: 900; letter-spacing: -.035em; color: #FFFFFF; }
+
+    .brand-title span { color: #66ABF0; }
+
+    .brand-subtitle { margin: 5px 0 0; color: #B7C0CA; font-size: 9px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+
+    .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+
+    .user-block { display: flex; align-items: center; gap: 10px; padding-left: 14px; border-left: 1px solid rgba(255,255,255,.2); }
+
+    .user-meta { text-align: right; }
+
+    .user-meta small { display: block; color: #B7C0CA; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+
+    .user-meta strong { display: block; margin-top: 3px; font-size: 11px; color: #FFFFFF; }
+
+    .avatar { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 50%; background: #0073E6; color: #FFFFFF; font-size: 13px; font-weight: 900; }
+
+    
+
+    /* Logos Corporativos */
+
+    .partner-logos { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; margin-left: 3px; }
+
+    .partner-logo-tile {
+
+      height: 44px; min-width: 112px; max-width: 148px; padding: 7px 11px;
+
+      display: inline-flex; align-items: center; justify-content: center; overflow: hidden;
+
+      border: 1px solid #E1E6EC; border-radius: 10px; background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,.12);
+
+    }
+
+    .partner-logo-tile img { display: block; width: auto; height: auto; max-width: 126px; max-height: 28px; object-fit: contain; }
+
+    .partner-logo-tile.zebra-logo-tile img { max-width: 105px; }
+
+    .partner-logo-tile.intcomex-logo-tile img { max-width: 126px; }
+
+    .partner-logos-divider { color: #AAB4C0; font-size: 14px; font-weight: 800; line-height: 1; }
+
+    .partner-logo-tile.logo-unavailable::after { content: attr(data-fallback); color: #111827; font-size: 10px; font-weight: 900; letter-spacing: .04em; }
+
+
+
+    /* Página */
+
+    .page { max-width: 1320px; margin: 0 auto; padding: 30px 28px 28px; }
+
+    .welcome-row { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 22px; }
+
+    .eyebrow { display: flex; align-items: center; gap: 8px; color: #0068D1; font-size: 10px; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+
+    .page-title { margin: 8px 0 5px; font-size: clamp(22px, 3vw, 30px); line-height: 1.1; letter-spacing: -.045em; font-weight: 850; color: #111827; }
+
+    .page-description { margin: 0; color: #657181; font-size: 12px; line-height: 1.65; }
+
+    
+
+    .layout { display: grid; grid-template-columns: minmax(255px, .78fr) minmax(0, 1.75fr); gap: 20px; align-items: start; }
+
+    .sidebar, .content-column { display: grid; gap: 18px; min-width: 0; }
+
+    
+
+    /* Paneles */
+
+    .panel { background: #FFFFFF; border: 1px solid #E0E5EB; border-radius: 18px; box-shadow: 0 10px 30px rgba(15,23,42,.055); }
+
+    .panel-pad { padding: 21px; }
+
+    .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 17px; }
+
+    .panel-title { display: flex; align-items: center; gap: 9px; margin: 0; color: #151A21; font-size: 11px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
+
+    .panel-title-icon { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 9px; background: #EAF3FD; color: #0073E6; }
+
+    
+
+    .sync-pill {
+
+      display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+
+      border: 1px solid #CDE8D1; background: #EFF8F0; color: #247A3B;
+
+      border-radius: 999px; padding: 7px 11px; font-size: 10px; font-weight: 800;
+
+      box-shadow: 0 2px 7px rgba(39,138,66,.05);
+
+    }
+
+    .sync-pill.pending { color: #936300; background: #FFF8E6; border-color: #F1D99A; }
+
+    .sync-pill.error { color: #B42332; background: #FFF1F2; border-color: #F2C8CE; }
+
+
+
+    /* Botones */
+
+    .sync-button, .secondary-button, .logout-button, .primary-button, .export-button {
+
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+
+      border-radius: 11px; border: 1px solid transparent; font-weight: 850;
+
+      transition: transform .16s ease, background .16s ease, border-color .16s ease;
+
+    }
+
+    .secondary-button { padding: 10px 13px; background: #F1F6FC; border-color: #D6E6F8; color: #0068D1; font-size: 10px; }
+
+    .secondary-button:hover { background: #E4F0FC; transform: translateY(-1px); }
+
+    .logout-button { padding: 9px 11px; background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.18); color: #E5E7EB; font-size: 10px; }
+
+    .logout-button:hover { background: rgba(255,255,255,.14); }
+
+    .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+    .export-button { min-height: 44px; padding: 10px; background: #FFFFFF; border-color: #DCE2E8; color: #27313D; font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+
+    .export-button:hover { background: #EFF6FD; border-color: #B8D6F5; color: #005FBE; transform: translateY(-1px); }
+
+    .export-button:disabled { opacity: .42; }
+
+    .export-note { margin: 12px 0 0; color: #778392; font-size: 9px; line-height: 1.5; }
+
+    .quick-note { display: flex; align-items: flex-start; gap: 11px; padding: 14px; border-radius: 14px; background: #EEF5FC; border: 1px solid #D5E7F8; color: #34485E; font-size: 10px; line-height: 1.6; }
+
+
+
+    /* Formulario de Cotización */
+
+    .quote-panel { overflow: visible; }
+
+    .quote-panel-top { padding: 21px 22px 17px; border-bottom: 1px solid #E6EAF0; }
+
+    .step-label { margin: 0 0 11px; color: #657181; font-size: 9px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+
+    .segmented-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; }
+
+    .segmented { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; background: #F0F3F6; border: 1px solid #E0E5EB; border-radius: 13px; }
+
+    .tab-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; padding: 8px 12px; border: 0; border-radius: 99px; background: transparent; color: #586474; font-size: 9px; font-weight: 850; letter-spacing: .035em; transition: .16s ease; }
+
+    .tab-button:hover { color: #111827; background: #E5EBF1; }
+
+    .tab-button.active { color: #FFFFFF; background: #0073E6; box-shadow: 0 3px 10px rgba(0,115,230,.18); }
+
+    
+
+    .form-body { padding: 22px; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+
+    .field { min-width: 0; display: grid; gap: 7px; position: relative; }
+
+    .field.full { grid-column: 1 / -1; }
+
+    .field-label { color: #3D4855; font-size: 9px; font-weight: 900; letter-spacing: .105em; text-transform: uppercase; }
+
+    .field-hint { margin: 0 0 0 2px; color: #7B8794; font-size: 9px; line-height: 1.5; }
+
+    .field-input, .field-select, .field-textarea {
+
+      width: 100%; min-width: 0; border: 1px solid #D5DCE4; border-radius: 12px; outline: none;
+
+      background: #FFFFFF; color: #111827; padding: 13px 14px; font-size: 12px; font-weight: 650;
+
+      transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+
+    }
+
+    .field-input::placeholder, .field-textarea::placeholder { color: #9AA4B1; font-weight: 550; }
+
+    .field-input:focus, .field-select:focus, .field-textarea:focus { border-color: #0073E6; box-shadow: 0 0 0 3px rgba(0,115,230,.12); background: #FFFFFF; }
+
+    .field-input.error, .field-select.error, .field-textarea.error { border-color: #D94A58; background: #FFF7F7; }
+
+    .field-input.sku { font-size: 15px; font-weight: 850; letter-spacing: .035em; text-transform: uppercase; }
+
+    .field-textarea { min-height: 115px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.7; }
+
+    .field-error { display: flex; align-items: flex-start; gap: 6px; margin: 0 0 0 2px; color: #D94A58; font-size: 9px; font-weight: 750; line-height: 1.5; }
+
+    
+
+    .dropdown { position: absolute; z-index: 20; top: calc(100% + 5px); left: 0; right: 0; max-height: 220px; overflow: auto; padding: 5px; background: #FFFFFF; border: 1px solid #D5DCE4; border-radius: 13px; box-shadow: 0 18px 40px rgba(15,23,42,.15); }
+
+    .dropdown-item { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; border: 0; border-radius: 8px; background: transparent; color: #18212B; text-align: left; font-size: 10px; font-weight: 750; }
+
+    .dropdown-item:hover { background: #EFF6FD; }
+
+    .dropdown-id { color: #0068D1; font-size: 9px; white-space: nowrap; }
+
+    .partner-selected { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; background: #EFF8F0; border: 1px solid #CDE8D1; border-radius: 11px; color: #28643A; font-size: 9px; }
+
+    
+
+    .primary-button { width: 100%; min-height: 48px; margin-top: 21px; padding: 13px 18px; background: #0073E6; color: #FFFFFF; box-shadow: 0 8px 20px rgba(0,115,230,.18); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+
+    .primary-button:hover { background: #005FBE; transform: translateY(-1px); box-shadow: 0 11px 24px rgba(0,115,230,.22); }
+
+    .primary-button:active { transform: translateY(0); }
+
+
+
+    /* Resultados de Cotización */
+
+    .result-panel { padding: 22px; }
+
+    .result-topline { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 17px; }
+
+    .result-heading { margin: 0; font-size: 11px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: #111827; }
+
+    .result-date { color: #7B8794; font-size: 9px; }
+
+    .result-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, .62fr); gap: 18px; align-items: stretch; }
+
+    .result-product { min-width: 0; padding: 4px 0; }
+
+    .badge-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+
+    .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: 999px; border: 1px solid #E0E5EB; background: #F4F6F8; color: #46515E; font-size: 8px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+
+    .status-badge.success { color: #247A3B; background: #EFF8F0; border-color: #CDE8D1; }
+
+    .status-badge.danger { color: #B42332; background: #FFF1F2; border-color: #F2C8CE; }
+
+    .status-badge.promo { color: #0068D1; background: #EAF3FD; border-color: #C9DFF6; }
+
+    .result-sku { margin: 0; overflow-wrap: anywhere; font-size: clamp(19px, 3vw, 27px); font-weight: 900; letter-spacing: -.035em; color: #111827; }
+
+    .result-description { margin: 7px 0 0; color: #647181; font-size: 10px; line-height: 1.6; }
+
+    
+
+    .price-card { display: flex; flex-direction: column; justify-content: center; min-width: 0; padding: 19px; border: 1px solid #0073E6; border-radius: 16px; background: linear-gradient(145deg, #101820 0%, #000000 100%); box-shadow: inset 3px 0 0 #0073E6; }
+
+    .price-label { color: #C5CFDA; font-size: 8px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+
+    .price-value { margin: 8px 0 0; color: #FFFFFF; font-size: clamp(26px, 3.4vw, 36px); font-weight: 900; line-height: 1; letter-spacing: -.055em; overflow-wrap: anywhere; }
+
+    .price-value span { color: #66ABF0; font-size: 13px; letter-spacing: 0; }
+
+    .promo-line { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 13px; color: #66ABF0; font-size: 9px; font-weight: 800; }
+
+    
+
+    .price-deal-details { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 12px; margin: 12px 0 2px; }
+
+    .price-original { display: inline-flex; align-items: center; gap: 6px; color: #D1D8E0; font-size: 9px; font-weight: 700; }
+
+    .price-original-label { color: #AEB8C4; }
+
+    .price-original-value { color: #D1D8E0; text-decoration: line-through; text-decoration-thickness: 1.5px; text-decoration-color: #F18A8A; opacity: .9; }
+
+    .price-saving-badge { display: inline-flex; align-items: center; gap: 4px; padding: 5px 8px; border: 1px solid rgba(91,190,119,.4); border-radius: 999px; background: rgba(39,138,66,.18); color: #A5E6B4; font-size: 9px; font-weight: 900; white-space: nowrap; }
+
+    .price-final-caption { margin-top: 5px; color: #B7C3D0; font-size: 9px; font-weight: 700; }
+
+
+
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin-top: 20px; padding-top: 17px; border-top: 1px solid #E5E9EE; }
+
+    .metric { min-width: 0; padding: 12px; background: #F6F8FA; border: 1px solid #E4E8ED; border-radius: 11px; }
+
+    .metric-label { color: #778392; font-size: 8px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+
+    .metric-value { margin-top: 6px; color: #202A35; font-size: 10px; font-weight: 800; line-height: 1.45; overflow-wrap: anywhere; }
+
+    
+
+    .error-card { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px; background: #FFF5F5; border: 1px solid #F2D1D5; border-radius: 14px; }
+
+    .error-message { display: flex; align-items: center; gap: 10px; color: #B42332; font-size: 11px; font-weight: 750; line-height: 1.5; }
+
+    .error-mail { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 12px; border-radius: 10px; background: #B42332; color: #FFF; font-size: 9px; font-weight: 900; text-decoration: none; white-space: nowrap; }
+
+    .error-mail:hover { background: #981B29; }
+
+
+
+    /* Tablas */
+
+    .table-wrap { width: 100%; overflow: auto; border: 1px solid #E0E5EB; border-radius: 13px; }
+
+    .results-table { width: 100%; min-width: 860px; border-collapse: collapse; text-align: left; }
+
+    .results-table th { padding: 12px 11px; background: #000000; color: #FFFFFF; font-size: 8px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; white-space: nowrap; border-bottom: 2px solid #0073E6; }
+
+    .results-table td { padding: 12px 11px; border-top: 1px solid #E9EDF2; background: #FFFFFF; color: #394553; font-size: 9px; font-weight: 700; vertical-align: middle; }
+
+    .results-table tbody tr:hover td { background: #F3F8FD; }
+
+    .results-table tbody tr.row-error td { background: #FFF7F7; }
+
+    .text-right { text-align: right !important; }
+
+    .text-center { text-align: center !important; }
+
+    .sku-cell { color: #151A21 !important; font-weight: 900 !important; }
+
+    .sub-cell { display: block; margin-top: 4px; color: #7B8794; font-size: 8px; }
+
+    .table-promo { color: #0068D1 !important; font-size: 8px !important; font-weight: 900 !important; }
+
+    .table-old-value { color: #8793A1; font-size: 8px; text-decoration: line-through; text-decoration-color: #D66C75; text-decoration-thickness: 1.25px; }
+
+    .table-saving-value { color: #247A3B !important; font-weight: 900 !important; white-space: nowrap; }
+
+    .table-final-value { color: #111827 !important; font-weight: 900 !important; white-space: nowrap; }
+
+
+
+    .empty-state { display: flex; align-items: center; gap: 13px; padding: 17px; border: 1px dashed #CBD6E2; border-radius: 14px; background: rgba(255,255,255,.72); color: #687585; font-size: 10px; line-height: 1.6; }
+
+    .empty-icon { width: 35px; height: 35px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 11px; background: #EAF3FD; color: #0073E6; }
+
+
+
+    /* Login */
+
+    .login-screen { min-height: 100vh; display: grid; place-items: center; padding: 25px; background: radial-gradient(circle at 18% 12%, rgba(0,115,230,.09), transparent 30%), linear-gradient(180deg, #F8FAFC, #EEF2F6); }
+
+    .login-card { width: min(100%, 420px); padding: 30px; background: #FFFFFF; border: 1px solid #E0E5EB; border-radius: 25px; box-shadow: 0 24px 70px rgba(15,23,42,.12); }
+
+    .login-brand { text-align: center; margin-bottom: 27px; }
+
+    .login-partner-logos { display: flex; justify-content: center; margin: 0 auto 20px; }
+
+    .login-partner-logos .partner-logos { margin-left: 0; }
+
+    .login-partner-logos .partner-logo-tile { box-shadow: 0 2px 8px rgba(15,23,42,.07); }
+
+    .login-title { margin: 0; font-size: 25px; font-weight: 900; letter-spacing: -.055em; color: #111827; }
+
+    .login-title span { color: #0073E6; }
+
+    .login-subtitle { margin: 8px 0 0; color: #6B7785; font-size: 9px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+
+    .internal-tag { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; padding: 6px 10px; border: 1px solid #D6E6F8; border-radius: 999px; background: #EFF6FD; color: #0068D1; font-size: 8px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+
+    .login-form { display: grid; gap: 16px; }
+
+    .login-submit { margin-top: 3px; }
+
+    .login-error { display: flex; align-items: flex-start; gap: 9px; padding: 12px; border: 1px solid rgba(251,113,133,.2); border-radius: 11px; background: rgba(127,29,29,.16); color: #fda4af; font-size: 10px; font-weight: 700; line-height: 1.5; }
+
+    .login-help { margin: 17px 0 0; color: #7B8794; font-size: 9px; line-height: 1.6; text-align: center; }
+
+    .footer-note { margin: 22px 0 0; color: #8994A1; text-align: center; font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+
+
+
+    /* Admin Center Dashboard */
+
+    .module-nav { display: flex; gap: 8px; margin: -5px 0 20px; padding: 5px; width: max-content; max-width: 100%; background: #F0F3F6; border: 1px solid #E0E5EB; border-radius: 13px; }
+
+    .module-nav-button { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 9px 14px; border: 0; border-radius: 9px; background: transparent; color: #586474; font-size: 10px; font-weight: 850; transition: .16s ease; }
+
+    .module-nav-button:hover { color: #111827; background: #E5EBF1; }
+
+    .module-nav-button.active { color: #fff; background: #0073e6; box-shadow: 0 4px 13px rgba(0,115,230,.22); }
+
+    .admin-center { display: grid; gap: 17px; }
+
+    .admin-hero { padding: 23px; display: flex; align-items: center; justify-content: space-between; gap: 20px; background: linear-gradient(120deg, rgba(0,115,230,.08), #FFFFFF 54%); }
+
+    .admin-hero-copy { max-width: 760px; }
+
+    .admin-hero-copy h3 { margin: 10px 0 7px; font-size: 21px; line-height: 1.2; letter-spacing: -.04em; }
+
+    .admin-hero-copy p { margin: 0; max-width: 730px; color: #566170; font-size: 11px; line-height: 1.65; }
+
+    .admin-hero-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+
+    .admin-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+
+    .admin-stat { position: relative; min-height: 120px; padding: 16px; }
+
+    .admin-stat-icon { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 10px; background: rgba(0,115,230,.14); color: #0073e6; }
+
+    .admin-stat-icon.warning { color: #d97706; background: rgba(217,119,6,.11); }
+
+    .admin-stat-icon.danger { color: #c43d4b; background: rgba(196,61,75,.11); }
+
+    .admin-stat-value { margin-top: 12px; font-size: 25px; line-height: 1; font-weight: 900; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+
+    .admin-stat-label { margin-top: 7px; color: #566170; font-size: 9px; font-weight: 750; line-height: 1.4; }
+
+    .admin-panel { padding: 20px; min-width: 0; }
+
+    .admin-panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+
+    .admin-panel-subtitle { margin: 7px 0 0 38px; color: #7B8794; font-size: 9px; }
+
+    .admin-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 14px; }
+
+    .admin-filter { min-width: 155px; padding: 9px 11px; border: 1px solid #D5DCE4; border-radius: 10px; background: #FFFFFF; color: #111827; font-size: 10px; }
+
+    .admin-source-note { display: flex; align-items: flex-start; gap: 9px; padding: 12px 13px; border: 1px solid rgba(0,115,230,.2); background: rgba(0,115,230,.075); border-radius: 12px; color: #005FBE; font-size: 10px; line-height: 1.6; }
+
+    .admin-source-note.local { color: #92400e; border-color: rgba(245,158,11,.3); background: rgba(245,158,11,.09); }
+
+    .admin-grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 17px; }
+
+    .admin-table-wrap { max-height: 420px; overflow: auto; }
+
+    .admin-table { width: 100%; min-width: 520px; border-collapse: collapse; text-align: left; }
+
+    .admin-table th { padding: 11px 10px; background: #000; color: #fff; font-size: 8px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+
+    .admin-table td { padding: 11px 10px; border-top: 1px solid #E9EDF2; color: #394553; font-size: 9px; font-weight: 700; vertical-align: middle; }
+
+    .admin-table tbody tr:hover td { background: #F3F8FD; }
+
+    .admin-table .primary-cell { color: #111827; font-weight: 900; }
+
+    .admin-empty { display: flex; align-items: center; gap: 11px; min-height: 105px; padding: 20px; color: #566170; font-size: 10px; line-height: 1.6; }
+
+    .admin-empty svg { flex: 0 0 auto; color: #0073e6; }
+
+    .admin-method-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+
+    .admin-method-grid > div { padding: 13px; background: #F6F8FA; border: 1px solid #E4E8ED; border-radius: 11px; }
+
+    .admin-method-grid strong { display: block; color: #111827; font-size: 10px; }
+
+    .admin-method-grid p { margin: 6px 0 0; color: #566170; font-size: 9px; line-height: 1.55; }
+
+    .admin-security-note { display: flex; gap: 7px; align-items: flex-start; margin: 14px 0 0; padding-top: 12px; border-top: 1px solid #E0E5EB; color: #7B8794; font-size: 9px; line-height: 1.5; }
+
+    .admin-subnav { display:flex; flex-wrap:wrap; gap:7px; padding:5px; width:max-content; max-width:100%; background:#F0F3F6; border:1px solid #E0E5EB; border-radius:12px; }
+
+    .admin-subnav button { display:inline-flex; align-items:center; gap:7px; min-height:34px; padding:8px 12px; border:0; border-radius:8px; background:transparent; color:#586474; font-size:9px; font-weight:850; }
+
+    .admin-subnav button.active { background:#FFFFFF; color:#0068D1; box-shadow:0 2px 7px rgba(15,23,42,.09); }
+
+    .promo-crud-card { margin-bottom:14px; }
+
+    .promo-crud-access { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:stretch; gap:10px; width:100%; max-width:760px; }
+
+    .promo-crud-access input { display:block; width:100%; min-width:0; min-height:48px; padding:13px 15px; font-size:13px; letter-spacing:.04em; }
+
+    .promo-crud-access .primary-button { width:auto; min-width:220px; min-height:48px; margin-top:0; padding:13px 20px; white-space:nowrap; }
+
+    @media (max-width:560px) { .promo-crud-access { grid-template-columns:1fr; } .promo-crud-access .primary-button { width:100%; min-width:0; } }
+
+    .promo-crud-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+
+    .promo-crud-grid > label { display:flex; flex-direction:column; gap:6px; color:#465363; font-size:9px; font-weight:850; }
+
+    .promo-crud-grid .promo-crud-check { flex-direction:row; align-items:center; gap:8px; }
+
+    .promo-crud-check input { accent-color:#0068D1; }
+
+    .promo-crud-wide { grid-column:1/-1; }
+
+    .promo-crud-actions,.promo-row-actions { display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
+
+    .promo-crud-action { border:1px solid #D5DCE4; border-radius:8px; padding:6px 8px; background:#fff; color:#344054; font-size:8px; font-weight:800; cursor:pointer; }
+
+    .promo-crud-action.danger { color:#B42332; border-color:#F2C7CC; }
+
+    .promo-crud-action:disabled { opacity:.5; cursor:not-allowed; }
+
+    .promo-crud-message { margin:10px 0 0; color:#247A3B; font-size:10px; font-weight:750; }
+
+    .promo-crud-message.error { color:#B42332; }
+
+    .promo-table { min-width:1100px; }
+
+    .promo-summary-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+
+    .promo-summary-card { padding:16px; }
+
+    .promo-summary-value { margin-top:8px; font-size:24px; line-height:1; font-weight:900; letter-spacing:-.04em; }
+
+    .promo-summary-label { margin-top:7px; color:#647181; font-size:9px; font-weight:750; }
+
+    .promo-filter-row { display:grid; grid-template-columns:minmax(220px,1.5fr) repeat(2,minmax(150px,.7fr)); gap:9px; }
+
+    .promo-filter-input { width:100%; min-width:0; padding:10px 12px; border:1px solid #D5DCE4; border-radius:10px; background:#FFFFFF; color:#111827; font-size:10px; outline:none; }
+
+    .promo-filter-input:focus { border-color:#0073E6; box-shadow:0 0 0 3px rgba(0,115,230,.1); }
+
+    .promo-code { color:#0068D1; font-weight:900; white-space:nowrap; }
+
+    .promo-status { display:inline-flex; padding:5px 8px; border-radius:999px; font-size:8px; font-weight:900; white-space:nowrap; }
+
+    .promo-status.active { color:#247A3B; background:#EFF8F0; }
+
+    .promo-status.inactive { color:#B42332; background:#FFF1F2; }
+
+    .promo-status.scheduled { color:#936300; background:#FFF8E6; }
+
+    .promo-status.expired { color:#647181; background:#EEF1F4; }
+
+    .promo-table { min-width:900px; }
+
+    .promo-table td { white-space:nowrap; }
+
+    .promo-observation { display:block; max-width:220px; overflow:hidden; color:#7B8794; font-size:8px; text-overflow:ellipsis; white-space:nowrap; }
+
+    @media (max-width:680px) { .promo-summary-grid { grid-template-columns:1fr 1fr; } .promo-filter-row { grid-template-columns:1fr; } .admin-subnav { width:100%; } .admin-subnav button { flex:1; justify-content:center; } }
+
+
+
+    .spin { display: inline-block; animation: spin 1s linear infinite; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+
+
+    /* Media queries */
+
+    @media (max-width: 980px) {
+
+      .page { padding: 22px; }
+
+      .layout { grid-template-columns: 1fr; }
+
+      .sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+
+      .sidebar .quick-note { grid-column: 1 / -1; }
+
+      .admin-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+      .admin-hero { align-items: flex-start; flex-direction: column; }
+
+      .admin-hero-actions { justify-content: flex-start; }
+
+      .admin-grid-two { grid-template-columns: 1fr; }
+
+    }
+
+    @media (max-width: 680px) {
+
+      .top-alert { font-size: 9px; }
+
+      .notice-bar { padding: 10px 15px; }
+
+      .header-inner { padding: 14px 16px; align-items: center; }
+
+      .brand { flex-wrap: wrap; row-gap: 9px; }
+
+      .brand-title { font-size: 15px; }
+
+      .brand-subtitle { font-size: 8px; letter-spacing: .09em; }
+
+      .header-actions { flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+
+      .user-meta { display: none; }
+
+      .user-block { border-left: 0; padding-left: 0; gap: 7px; }
+
+      .logout-button { padding: 8px; font-size: 0; }
+
+      .logout-button svg { width: 16px; height: 16px; }
+
+      .partner-logos { gap: 5px; margin-left: 0; }
+
+      .partner-logo-tile { height: 35px; min-width: 88px; max-width: 116px; padding: 5px 8px; border-radius: 8px; }
+
+      .partner-logo-tile img { max-width: 98px; max-height: 22px; }
+
+      .partner-logo-tile.zebra-logo-tile img { max-width: 82px; }
+
+      .partner-logo-tile.intcomex-logo-tile img { max-width: 98px; }
+
+      .partner-logos-divider { font-size: 11px; }
+
+      .login-partner-logos { margin-bottom: 17px; }
+
+      .page { padding: 18px 13px; }
+
+      .welcome-row { align-items: flex-start; flex-direction: column; gap: 12px; }
+
+      .sync-pill { align-self: flex-start; }
+
+      .sidebar { grid-template-columns: 1fr; }
+
+      .sidebar .quick-note { grid-column: auto; }
+
+      .panel-pad, .form-body, .result-panel { padding: 16px; }
+
+      .quote-panel-top { padding: 16px; }
+
+      .segmented-row { display: grid; grid-template-columns: 1fr; }
+
+      .segmented { width: 100%; }
+
+      .segmented .tab-button { flex: 1; }
+
+      .form-grid { grid-template-columns: 1fr; gap: 14px; }
+
+      .field.full { grid-column: auto; }
+
+      .result-main { grid-template-columns: 1fr; }
+
+      .price-card { min-height: 135px; }
+
+      .price-deal-details { gap: 7px; }
+
+      .price-original, .price-saving-badge { font-size: 8px; }
+
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+      .error-card { align-items: stretch; flex-direction: column; }
+
+      .error-mail { width: 100%; }
+
+      .module-nav { width: 100%; }
+
+      .module-nav-button { flex: 1; justify-content: center; padding: 8px; }
+
+      .admin-stat-grid { gap: 8px; }
+
+      .admin-stat { min-height: 110px; padding: 12px; }
+
+      .admin-stat-value { font-size: 22px; }
+
+      .admin-panel { padding: 14px; }
+
+      .admin-controls { align-items: stretch; }
+
+      .admin-filter { width: 100%; }
+
+      .admin-method-grid { grid-template-columns: 1fr; }
+
+    }
+
+    .product-description-cell { min-width: 240px; max-width: 420px; white-space: normal; line-height: 1.45; color: #4b5563; font-size: 11px; }
+
+    /* Ajustes de distribución del cotizador */
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .content-column { gap: 14px; }
+    .form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .export-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 14px 18px;
+      border-color: #D6E6F8;
+      box-shadow: 0 6px 18px rgba(15,23,42,.045);
+    }
+    .export-toolbar-copy { min-width: 0; }
+    .export-toolbar .panel-title { margin: 0; }
+    .export-toolbar .panel-title-icon { flex: 0 0 auto; }
+    .export-toolbar .export-note { margin: 5px 0 0 38px; }
+    .export-toolbar .export-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(130px, 1fr));
+      width: min(100%, 330px);
+      flex: 0 0 auto;
+    }
+    @media (max-width: 980px) {
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 680px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .export-toolbar { align-items: stretch; flex-direction: column; gap: 12px; padding: 15px; }
+      .export-toolbar .export-note { margin-left: 0; }
+      .export-toolbar .export-grid { width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+  
+
+    /* Armonización de la tabla de cotización masiva */
+    .results-table { min-width: 1420px; table-layout: fixed; }
+    .results-table th, .results-table td { padding: 13px 12px; }
+    .results-table th { white-space: normal; line-height: 1.35; vertical-align: middle; }
+    .results-table th:nth-child(1), .results-table td:nth-child(1) { width: 12%; }
+    .results-table th:nth-child(2), .results-table td:nth-child(2) { width: 10%; }
+    .results-table th:nth-child(3), .results-table td:nth-child(3) { width: 20%; }
+    .results-table th:nth-child(4), .results-table td:nth-child(4) { width: 16%; }
+    .results-table th:nth-child(5), .results-table td:nth-child(5) { width: 9%; }
+    .results-table th:nth-child(6), .results-table td:nth-child(6) { width: 9%; }
+    .results-table th:nth-child(7), .results-table td:nth-child(7) { width: 8%; }
+    .results-table th:nth-child(8), .results-table td:nth-child(8) { width: 8%; }
+    .results-table th:nth-child(9), .results-table td:nth-child(9) { width: 8%; }
+    .results-table td { line-height: 1.5; overflow-wrap: anywhere; }
+    .product-description-cell { min-width: 0; max-width: none; padding-right: 18px !important; font-size: 10px !important; line-height: 1.55 !important; font-weight: 600 !important; }
+    .source-cell { font-size: 9px !important; line-height: 1.45 !important; color: #475569; font-weight: 700 !important; }
+    .package-cell { padding-left: 8px !important; padding-right: 8px !important; }
+    .package-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 78px; max-width: 100%; padding: 7px 9px; border: 1px solid #F3D38A; border-radius: 8px; background: #FFF7E3; color: #8A5A08; font-size: 9px; font-weight: 850; line-height: 1.3; white-space: normal; text-align: center; }
+    .package-unit { display: inline-flex; align-items: center; justify-content: center; min-width: 68px; padding: 7px 9px; border: 1px solid #E2E8F0; border-radius: 8px; background: #F8FAFC; color: #64748B; font-size: 9px; font-weight: 750; line-height: 1.3; }
+    @media (max-width: 760px) {
+      .results-table { min-width: 1360px; }
+      .results-table th, .results-table td { padding: 11px 9px; }
+    }
+
+</style>
+
+</head>
+
+<body>
+
+  <div id="root"></div>
+
+
+
+  <script type="text/babel">
+
+    const { useState, useEffect, useRef, useMemo } = React;
+
+
+
+    // ============================================================
+
+    // MOTOR DE COTIZACIÓN Y CONFIGURACIÓN DE HOJAS
+
+    // ============================================================
+
+    const DEFAULT_DNP_SHEET_ID = '1zrOWRApHFE64PBqvdR1iYqykK1N66I9IEmCBsdDL6_k&gid=282922731';
+
+    const DEFAULT_PRICE_LIST_SHEET_ID = '1T8HYEMYA7urr1UOqIoO28YH4lcoUeUySePH0sdMLnJs&gid=487842778';
+
+    const DEFAULT_PARTNER_LEVEL_SHEET_ID = '1GWcWQHs535jGzodQFjQaoUn_WNc8vgmZ_GWnQYck5mQ&gid=399237021';
+
+    const DEFAULT_USERS_SHEET_ID = '1z_-VWCunuX4fNa6FEBQ2IT4bmtWAdC6VVKSc2ztL7IE';
+
+    const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
+
+
+
+    const clean = (text) => text?.toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toUpperCase() || '';
+
+    
+
+    const parsePrice = (val) => {
+
+      if (val === null || val === undefined || val === 'N/A' || val === '') return null;
+
+      if (typeof val === 'number') return val;
+
+      const cleaned = val.toString().replace(/,/g, '').replace(/[^\d.-]/g, '');
+
+      const num = parseFloat(cleaned);
+
+      return isNaN(num) ? null : num;
+
+    };
+
+
+
+    const getRegionForCountry = (country) => {
+
+      const c = clean(country);
+
+      if (c === 'COLOMBIA') return 'Colombia';
+
+      if (['PERU', 'PERÚ', 'CHILE', 'ARGENTINA', 'URUGUAY', 'BOLIVIA', 'PARAGUAY', 'SOLA'].includes(c)) return 'SOLA';
+
+      return 'NOLA';
+
+    };
+
+
+
+    const getFlexibleValue = (obj, targetKey) => {
+
+      if (!obj || !targetKey) return null;
+
+      const target = clean(targetKey);
+
+      const keys = Object.keys(obj);
+
+      const exact = keys.find(k => clean(k) === target);
+
+      if (exact) return obj[exact];
+
+      if (target.includes('REGISTER')) {
+
+        const regKey = keys.find(k => clean(k).includes('REGISTER'));
+
+        if (regKey) return obj[regKey];
+
+      }
+
+      const contains = keys.find(k => clean(k).includes(target));
+
+      if (contains) return obj[contains];
+
+      const isContained = keys.find(k => {
+
+        const kc = clean(k);
+
+        return kc.length > 5 && target.includes(kc);
+
+      });
+
+      if (isContained) return obj[isContained];
+
+      return null;
+
+    };
+
+
+
+    // ============================================================
+
+    // ANALÍTICA DE COTIZACIONES Y ACTIVIDAD COMERCIAL
+
+    // ============================================================
+
+    const ANALYTICS_API_URL = 'https://script.google.com/macros/s/AKfycbyAsqGY809-ijPAuRpH50lmVrJxV_EQ-_xn4PX8YKeW8pboBz-0LFFJdfkBuH5M36H2yA/exec';
+
+    const ANALYTICS_STORAGE_KEY = 'zebra_price_desk_analytics_v1';
+
+    
+
+    const readLocalAnalytics = () => {
+
+      try {
+
+        return JSON.parse(localStorage.getItem(ANALYTICS_STORAGE_KEY) || '[]');
+
+      } catch (e) {
+
+        return [];
+
+      }
+
+    };
+
+    
+
+    const saveLocalAnalytics = (events) => {
+
+      try {
+
+        const existing = readLocalAnalytics();
+
+        const merged = [...existing, ...events].slice(-5000);
+
+        localStorage.setItem(ANALYTICS_STORAGE_KEY, JSON.stringify(merged));
+
+      } catch (e) {
+
+        console.warn('No fue posible guardar analítica local:', e);
+
+      }
+
+    };
+
+    
+
+    const sendAnalyticsEvents = (events, username) => {
+
+      if (!events?.length) return;
+
+      saveLocalAnalytics(events);
+
+      if (!ANALYTICS_API_URL) return;
+
+      fetch(ANALYTICS_API_URL, {
+
+        method: 'POST',
+
+        mode: 'no-cors',
+
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+
+        body: JSON.stringify({ action: 'append', username, events })
+
+      }).catch(err => console.warn('No fue posible enviar analítica central:', err));
+
+    };
+
+
+
+    const fetchCentralAnalytics = (username) => new Promise((resolve, reject) => {
+
+      if (!ANALYTICS_API_URL) return reject(new Error('Endpoint de analítica no configurado'));
+
+      const callbackName = `__zpdAnalytics_${Date.now()}_${Math.floor(Math.random()*100000)}`;
+
+      const script = document.createElement('script');
+
+      const cleanup = () => { try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; } script.remove(); };
+
+      const timeout = setTimeout(() => { cleanup(); reject(new Error('Tiempo de espera agotado al consultar analítica')); }, 15000);
+
+      window[callbackName] = payload => { clearTimeout(timeout); cleanup(); payload?.ok ? resolve(payload.events || []) : reject(new Error(payload?.error || 'No fue posible leer analítica')); };
+
+      script.onerror = () => { clearTimeout(timeout); cleanup(); reject(new Error('No fue posible conectar con Apps Script')); };
+
+      script.src = `${ANALYTICS_API_URL}${ANALYTICS_API_URL.includes('?') ? '&' : '?'}action=read&username=${encodeURIComponent(username)}&callback=${callbackName}&_=${Date.now()}`;
+
+      document.head.appendChild(script);
+
+    });
+
+
+
+    const formatMoney = value => '$' + (Number(value) || 0).toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
+
+    const getAnalyticsDate = event => {
+
+      const value = event.timestamp || event.fecha || event.Fecha || '';
+
+      const date = new Date(value);
+
+      return Number.isNaN(date.getTime()) ? null : date;
+
+    };
+
+
+
+    // MOTOR DE PROMOCIONES: reglas administradas desde Google Sheets
+
+    const parsePromotionDate = value => {
+
+      if (value === null || value === undefined || value === '') return null;
+
+      if (value instanceof Date) return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+
+      const raw = String(value).trim();
+
+      const gvizDate = raw.match(/^Date\((\d+),(\d+),(\d+)\)$/);
+
+      if (gvizDate) return new Date(Number(gvizDate[1]), Number(gvizDate[2]), Number(gvizDate[3]));
+
+      const parsed = new Date(raw);
+
+      return Number.isNaN(parsed.getTime()) ? null : new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+
+    };
+
+
+
+    const isSheetTrue = value => value === true || ['TRUE', 'VERDADERO', 'SI', 'SÍ', '1', 'ACTIVA'].includes(clean(value));
+
+
+
+    const evaluatePromotions = (sku, region, country, basePrice, isDnpSku = false, promotionsData = []) => {
+
+      const s = clean(sku);
+
+      const reg = clean(region || getRegionForCountry(country));
+
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+
+
+
+      const matches = (promotionsData || []).filter(row => {
+
+        const code = String(row['B'] || row['col_1'] || '').trim();
+
+        const ruleRegion = String(row['C'] || row['col_2'] || '').trim();
+
+        const matchType = clean(row['D'] || row['col_3'] || '');
+
+        const patterns = String(row['E'] || row['col_4'] || '').split(',').map(clean).filter(Boolean);
+
+        const discountType = clean(row['F'] || row['col_5'] || '');
+
+        const active = isSheetTrue(row['J'] ?? row['col_9']);
+
+        const excludeDnp = isSheetTrue(row['K'] ?? row['col_10']);
+
+        if (!code || !patterns.length || !active) return false;
+
+        if (excludeDnp && isDnpSku) return false;
+
+        const regions = ruleRegion.split(',').map(clean).filter(Boolean);
+
+        if (!regions.includes(reg)) return false;
+
+        const skuMatches = matchType === 'EXACTO'
+
+          ? patterns.some(pattern => s === pattern)
+
+          : matchType === 'PREFIJO'
+
+            ? patterns.some(pattern => s.startsWith(pattern))
+
+            : false;
+
+        if (!skuMatches) return false;
+
+
+
+        const startDate = parsePromotionDate(row['H'] ?? row['col_7']);
+
+        const endDate = parsePromotionDate(row['I'] ?? row['col_8']);
+
+        if (startDate && today < startDate) return false;
+
+        if (endDate && today > endDate) return false;
+
+        return discountType === 'FIJO' || discountType === 'PORCENTAJE';
+
+      });
+
+
+
+      if (!matches.length) {
+
+        return { finalPrice: Math.max(0, basePrice), promoCode: 'Sin Promo', discountApplied: 0 };
+
+      }
+
+
+
+      // Conserva la primera regla coincidente según el orden de la matriz.
+
+      const rule = matches[0];
+
+      const discountType = clean(rule['F'] || rule['col_5'] || '');
+
+      const value = parsePrice(rule['G'] ?? rule['col_6']);
+
+      if (value === null || value < 0) {
+
+        console.error('Regla de promoción con descuento inválido:', rule);
+
+        return { finalPrice: Math.max(0, basePrice), promoCode: 'Sin Promo', discountApplied: 0 };
+
+      }
+
+      const discount = discountType === 'PORCENTAJE'
+
+        ? basePrice * (value / 100)
+
+        : value;
+
+      return {
+
+        finalPrice: Math.max(0, basePrice - discount),
+
+        promoCode: String(rule['B'] || rule['col_1']).trim(),
+
+        discountApplied: discount
+
+      };
+
+    };
+
+
+
+    const fetchGoogleSheetJson = async (sheetId) => {
+
+      if (!sheetId) return [];
+
+      try {
+
+        let cleanId = sheetId;
+
+        let gid = '';
+
+        if (cleanId.includes('gid=')) {
+
+          const matchGid = cleanId.match(/gid=([0-9]+)/);
+
+          if (matchGid) gid = matchGid[1];
+
+          cleanId = cleanId.split('?')[0].split('&')[0];
+
+        }
+
+        let url = `https://docs.google.com/spreadsheets/d/${cleanId}/gviz/tq?tqx=out:json`;
+
+        if (gid) url += `&gid=${gid}`;
+
+        const response = await fetch(url);
+
+        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+
+        const text = await response.text();
+
+        if (text.includes('<!DOCTYPE html') || text.includes('<html')) return [];
+
+        const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);?/);
+
+        let jsonString = match ? match[1] : '';
+
+        if (!jsonString) {
+
+          const firstBrace = text.indexOf('{');
+
+          const lastBrace = text.lastIndexOf('}');
+
+          if (firstBrace !== -1 && lastBrace !== -1) jsonString = text.substring(firstBrace, lastBrace + 1);
+
+        }
+
+        if (!jsonString) return [];
+
+        const json = JSON.parse(jsonString);
+
+        if (!json || !json.table || !json.table.rows) return [];
+
+        const cols = (json.table.cols || []).map(c => c ? c.label || c.id || '' : '');
+
+        const getColLetter = (idx) => {
+
+          let temp, letter = '', i = idx;
+
+          while (i >= 0) { temp = i % 26; letter = String.fromCharCode(temp + 65) + letter; i = Math.floor(i / 26) - 1; }
+
+          return letter;
+
+        };
+
+        return (json.table.rows || []).map(r => {
+
+          const rowObj = {};
+
+          if (r && r.c) {
+
+            r.c.forEach((cell, idx) => {
+
+              const val = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : (cell.f || '')) : '';
+
+              const colLetter = getColLetter(idx);
+
+              const rawLabel = cols[idx] ? cols[idx].trim() : '';
+
+              rowObj[colLetter] = val;
+
+              rowObj[`col_${idx}`] = val;
+
+              if (rawLabel) { rowObj[rawLabel] = val; rowObj[clean(rawLabel)] = val; }
+
+            });
+
+          }
+
+          return rowObj;
+
+        });
+
+      } catch (err) {
+
+        console.error(`Error al obtener datos de Google Sheets (${sheetId}):`, err);
+
+        return [];
+
+      }
+
+    };
+
+
+
+    // ============================================================
+
+    // ICONOS Y COMPONENTES
+
+    // ============================================================
+
+    const Icon = ({ name, size = 17, className = '' }) => {
+
+      const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', className, 'aria-hidden': true };
+
+      const paths = {
+
+        search: <><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>,
+
+        user: <><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+
+        users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>,
+
+        database: <><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></>,
+
+        refresh: <><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></>,
+
+        logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>,
+
+        mail: <><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></>,
+
+        alert: <><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></>,
+
+        check: <><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></>,
+
+        file: <><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a1 1 0 0 0 1 1h4M12 18v-6m-3 3 3 3 3-3"/></>,
+
+        printer: <><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></>,
+
+        lock: <><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
+
+        shield: <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4m0 4h.01"/></>,
+
+        list: <><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/></>,
+
+        layers: <><path d="m12 2 10 5-10 5L2 7zM2 17l10 5 10-5M2 12l10 5 10-5"/></>,
+
+        sparkle: <><path d="m12 3 1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3z"/><path d="m19 14 1 2.5 2.5 1-2.5 1L19 21l-1-2.5-2.5-1 2.5-1L19 14z"/></>,
+
+        calculator: <><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 16h.01M12 16h.01M16 16h.01"/></>,
+
+        'layout-dashboard': <><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></>,
+
+        calendar: <><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></>,
+
+        tag: <><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1"/></>,
+
+        'dollar-sign': <><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></>,
+
+        'shield-alert': <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4m0 4h.01"/></>,
+
+        'package-x': <><path d="m16 16 5 5m0-5-5 5"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14M3.3 7 12 12l8.7-5M12 22V12"/></>,
+
+        'user-check': <><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></>,
+
+        'trending-up': <><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></>,
+
+        'building-2': <><path d="M6 22V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v19M6 12H3v10h18V12h-3M10 6h4m-4 4h4m-4 4h4m-4 4h4"/></>,
+
+        'bar-chart': <><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></>,
+
+        'check-circle': <><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="m9 11 3 3L22 4"/></>,
+
+        info: <><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></>
+
+      };
+
+      return <svg {...common}>{paths[name] || paths.sparkle}</svg>;
+
+    };
+
+
+
+    class ErrorBoundary extends React.Component {
+
+      constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+
+      static getDerivedStateFromError(error) { return { hasError: true, error }; }
+
+      componentDidCatch(error, errorInfo) { console.error('ErrorBoundary detectó un error:', error, errorInfo); }
+
+      render() {
+
+        if (this.state.hasError) return (
+
+          <div className="login-screen">
+
+            <div className="login-card">
+
+              <div className="login-error"><Icon name="alert"/><span>Se produjo un error al iniciar la aplicación: {this.state.error?.toString()}</span></div>
+
+              <button className="primary-button" onClick={() => window.location.reload()}>Reintentar carga</button>
+
+            </div>
+
+          </div>
+
+        );
+
+        return this.props.children;
+
+      }
+
+    }
+
+
+
+    const Tab = ({ active, onClick, label, icon }) => (
+
+      <button type="button" onClick={onClick} className={`tab-button ${active ? 'active' : ''}`}>
+
+        {icon && <Icon name={icon} size={14}/>} {label}
+
+      </button>
+
+    );
+
+
+
+    const MetricCard = ({ label, value }) => (
+
+      <div className="metric">
+
+        <div className="metric-label">{label}</div>
+
+        <div className="metric-value">{value || '---'}</div>
+
+      </div>
+
+    );
+
+
+
+    // ============================================================
+
+    // APLICACIÓN PRINCIPAL
+
+    // ============================================================
+
+    const App = () => {
+
+      const [priceListData, setPriceListData] = useState([]);
+
+      const [partnerLevelData, setPartnerLevelData] = useState([]);
+
+      const [dnpData, setDnpData] = useState([]);
+
+      const [usersData, setUsersData] = useState([]);
+
+      const [promotionsData, setPromotionsData] = useState([]);
+
+      const [usersAccessVerified, setUsersAccessVerified] = useState(false);
+
+      const [loadingDrive, setLoadingDrive] = useState(false);
+
+      const [syncStatus, setSyncStatus] = useState('Pendiente de carga');
+
+
+
+      const [loginUsername, setLoginUsername] = useState('');
+
+      const [loginError, setLoginError] = useState('');
+
+      const [currentUser, setCurrentUser] = useState(() => {
+
+        try { const saved = sessionStorage.getItem('zebra_user_session'); return saved ? JSON.parse(saved) : null; }
+
+        catch (e) { return null; }
+
+      });
+
+
+
+      const [partnerType, setPartnerType] = useState('registered');
+
+      const [inputMode, setInputMode] = useState('single');
+
+
+
+      const [partnerId, setPartnerId] = useState('');
+
+      const [partnerNameInput, setPartnerNameInput] = useState('');
+      const [clientName, setClientName] = useState('');
+
+      const [showPartnerDropdown, setShowPartnerDropdown] = useState(false);
+
+      const [partnerError, setPartnerError] = useState(false);
+
+      const partnerDropdownRef = useRef(null);
+
+
+
+      const [newPartnerName, setNewPartnerName] = useState('');
+
+      const [manualRegion, setManualRegion] = useState('');
+
+      const [regionError, setRegionError] = useState(false);
+
+
+
+      const [skuSearch, setSkuSearch] = useState('');
+
+      const [bulkSkus, setBulkSkus] = useState('');
+
+      const [skuError, setSkuError] = useState(false);
+
+      const [searchResult, setSearchResult] = useState(null);
+
+      const [bulkResults, setBulkResults] = useState([]);
+
+      const [currentPartner, setCurrentPartner] = useState(null);
+
+
+
+      const [activeModule, setActiveModule] = useState('quote');
+
+      const [analyticsEvents, setAnalyticsEvents] = useState([]);
+
+      const [analyticsLoading, setAnalyticsLoading] = useState(false);
+
+      const [analyticsMessage, setAnalyticsMessage] = useState('');
+
+      const [analyticsPeriod, setAnalyticsPeriod] = useState('30');
+
+      const [adminSection, setAdminSection] = useState('dashboard');
+
+      const [promotionSearch, setPromotionSearch] = useState('');
+
+      const [promotionRegionFilter, setPromotionRegionFilter] = useState('TODAS');
+
+      const [promotionStatusFilter, setPromotionStatusFilter] = useState('TODAS');
+
+      const [promoAdminKey, setPromoAdminKey] = useState('');
+
+      const [promoAdminUnlocked, setPromoAdminUnlocked] = useState(false);
+
+      const [promoCrudLoading, setPromoCrudLoading] = useState(false);
+
+      const [promoCrudMessage, setPromoCrudMessage] = useState('');
+
+      const [promoCrudError, setPromoCrudError] = useState(false);
+
+      const [promoEditingId, setPromoEditingId] = useState('');
+
+      const [promoForm, setPromoForm] = useState({
+
+        codigo:'', region:'COLOMBIA', tipoCoincidencia:'EXACTO', patronSKU:'',
+
+        tipoDescuento:'FIJO', valorDescuento:'', fechaInicio:'', fechaFin:'',
+
+        activa:true, excluirDNP:false, observaciones:''
+
+      });
+
+      
+
+      const isAdminUser = usersAccessVerified && clean(currentUser?.role) === 'ADMINISTRADOR';
+
+
+
+      const refreshAnalytics = async () => {
+
+        setAnalyticsLoading(true);
+
+        try {
+
+          if (ANALYTICS_API_URL) {
+
+            const events = await fetchCentralAnalytics(currentUser?.username || '');
+
+            setAnalyticsEvents(events);
+
+            setAnalyticsMessage(`Datos centralizados · ${events.length.toLocaleString('es-CO')} eventos registrados.`);
+
+          } else {
+
+            const events = readLocalAnalytics();
+
+            setAnalyticsEvents(events);
+
+            setAnalyticsMessage('Analítica local de este navegador. Configura Apps Script para consolidar la actividad de todos los usuarios.');
+
+          }
+
+        } catch (err) {
+
+          setAnalyticsEvents(readLocalAnalytics());
+
+          setAnalyticsMessage(`No se pudo consultar el registro central. Se muestran datos locales de este navegador. ${err.message || ''}`);
+
+        } finally { setAnalyticsLoading(false); }
+
+      };
+
+
+
+      useEffect(() => {
+
+        if (isAdminUser && activeModule === 'admin') refreshAnalytics();
+
+      }, [isAdminUser, activeModule]);
+
+
+
+      const filteredAnalytics = useMemo(() => {
+
+        const now = new Date();
+
+        const days = analyticsPeriod === 'all' ? null : Number(analyticsPeriod);
+
+        return analyticsEvents.filter(event => {
+
+          if (!days) return true;
+
+          const date = getAnalyticsDate(event);
+
+          return date && date >= new Date(now.getTime() - days * 86400000);
+
+        });
+
+      }, [analyticsEvents, analyticsPeriod]);
+
+
+
+      const promotionApiRequest = async (payload) => {
+
+        if (!ANALYTICS_API_URL) throw new Error('Endpoint de Apps Script no configurado.');
+
+        const requestId = (window.crypto && typeof window.crypto.randomUUID === 'function')
+
+          ? window.crypto.randomUUID()
+
+          : Array.from(window.crypto.getRandomValues(new Uint8Array(24))).map(b => b.toString(16).padStart(2,'0')).join('');
+
+        const iframeName = 'zpdPromoFrame_' + requestId.replace(/-/g,'');
+
+        const iframe = document.createElement('iframe');
+
+        iframe.name = iframeName;
+
+        iframe.style.display = 'none';
+
+        document.body.appendChild(iframe);
+
+        const form = document.createElement('form');
+
+        form.method = 'POST';
+
+        form.action = ANALYTICS_API_URL;
+
+        form.target = iframeName;
+
+        form.style.display = 'none';
+
+        const input = document.createElement('input');
+
+        input.type = 'hidden';
+
+        input.name = 'payload';
+
+        input.value = JSON.stringify({...payload, requestId});
+
+        form.appendChild(input);
+
+        document.body.appendChild(form);
+
+        const postPromise = new Promise((resolve, reject) => {
+
+          const timer = setTimeout(() => reject(new Error('No se pudo completar el envío al servidor.')), 12000);
+
+          iframe.addEventListener('load', () => { clearTimeout(timer); resolve(); }, {once:true});
+
+          form.submit();
+
+        });
+
+        try {
+
+          await postPromise;
+
+        } finally {
+
+          form.remove();
+
+          iframe.remove();
+
+        }
+
+        const started = Date.now();
+
+        let lastError = 'El servidor todavía no devuelve respuesta.';
+
+        while (Date.now() - started < 20000) {
+
+          try {
+
+            const result = await new Promise((resolve, reject) => {
+
+              const callbackName = '__zpdPromo_' + requestId.replace(/-/g,'') + '_' + Date.now();
+
+              const script = document.createElement('script');
+
+              let settled = false;
+
+              const cleanup = () => {
+
+                script.remove();
+
+                try { delete window[callbackName]; } catch(e) { window[callbackName] = undefined; }
+
+              };
+
+              const timer = setTimeout(() => {
+
+                if (settled) return;
+
+                settled = true; cleanup(); reject(new Error('Tiempo de espera consultando la respuesta.'));
+
+              }, 4500);
+
+              window[callbackName] = data => {
+
+                if (settled) return;
+
+                settled = true; clearTimeout(timer); cleanup(); resolve(data);
+
+              };
+
+              script.onerror = () => {
+
+                if (settled) return;
+
+                settled = true; clearTimeout(timer); cleanup(); reject(new Error('No fue posible consultar la respuesta de Apps Script.'));
+
+              };
+
+              script.src = ANALYTICS_API_URL + '?action=promotion_result&requestId=' +
+
+                encodeURIComponent(requestId) + '&callback=' + encodeURIComponent(callbackName) +
+
+                '&_=' + Date.now();
+
+              document.head.appendChild(script);
+
+            });
+
+            if (result && result.ok) return result;
+
+            const message = String(result?.error || '');
+
+            if (message.includes('Resultado no disponible') || result?.pending === true) {
+
+              lastError = message || lastError;
+
+              await new Promise(resolve => setTimeout(resolve, 450));
+
+              continue;
+
+            }
+
+            throw new Error(message || 'El servidor rechazó la operación.');
+
+          } catch (err) {
+
+            if (String(err.message || '').includes('Tiempo de espera') ||
+
+                String(err.message || '').includes('No fue posible consultar')) {
+
+              lastError = err.message;
+
+              await new Promise(resolve => setTimeout(resolve, 450));
+
+              continue;
+
+            }
+
+            throw err;
+
+          }
+
+        }
+
+        throw new Error(lastError + ' Se agotó el tiempo de espera.');
+
+      };
+
+
+
+      const promotionApiToRows = (promotions) => (promotions || []).map(p => ({
+
+        A:p.id, B:p.codigo, C:p.region, D:p.tipoCoincidencia, E:p.patronSKU,
+
+        F:p.tipoDescuento, G:p.valorDescuento, H:p.fechaInicio, I:p.fechaFin,
+
+        J:p.activa, K:p.excluirDNP, L:p.observaciones
+
+      }));
+
+
+
+      const loadPromotionsFromApi = async (key = promoAdminKey) => {
+
+        const result = await promotionApiRequest({action:'promotion_list', adminKey:key});
+
+        setPromotionsData(promotionApiToRows(result.promotions));
+
+        return result.promotions || [];
+
+      };
+
+
+
+      const unlockPromotionAdmin = async () => {
+
+        if (!promoAdminKey.trim()) {
+
+          setPromoCrudError(true); setPromoCrudMessage('Ingresa la clave administrativa.'); return;
+
+        }
+
+        setPromoCrudLoading(true); setPromoCrudMessage('Verificando acceso...'); setPromoCrudError(false);
+
+        try {
+
+          await loadPromotionsFromApi(promoAdminKey);
+
+          setPromoAdminUnlocked(true);
+
+          setPromoCrudMessage('Acceso administrativo habilitado.');
+
+        } catch (err) {
+
+          setPromoAdminUnlocked(false); setPromoCrudError(true);
+
+          setPromoCrudMessage(err.message || 'No fue posible validar la clave.');
+
+        } finally { setPromoCrudLoading(false); }
+
+      };
+
+
+
+      const resetPromotionForm = () => {
+
+        setPromoEditingId('');
+
+        setPromoForm({codigo:'',region:'COLOMBIA',tipoCoincidencia:'EXACTO',patronSKU:'',tipoDescuento:'FIJO',valorDescuento:'',fechaInicio:'',fechaFin:'',activa:true,excluirDNP:false,observaciones:''});
+
+      };
+
+
+
+      const editPromotion = row => {
+
+        setPromoEditingId(row.id);
+
+        setPromoForm({
+
+          codigo:row.code, region:row.region, tipoCoincidencia:row.matchType,
+
+          patronSKU:row.pattern, tipoDescuento:row.discountType,
+
+          valorDescuento:String(row.discountValue ?? ''),
+
+          fechaInicio:row.startDate ? row.startDate.toISOString().slice(0,10) : '',
+
+          fechaFin:row.endDate ? row.endDate.toISOString().slice(0,10) : '',
+
+          activa:row.enabled, excluirDNP:row.excludeDnp, observaciones:row.notes
+
+        });
+
+        setPromoCrudMessage('Editando ' + row.code);
+
+        window.scrollTo({top:0,behavior:'smooth'});
+
+      };
+
+
+
+      const savePromotion = async event => {
+
+        event.preventDefault();
+
+        const value = Number(promoForm.valorDescuento);
+
+        const skuPatterns = [...new Set(promoForm.patronSKU.split(',').map(value => value.trim()).filter(Boolean))];
+
+        if (!promoForm.codigo.trim() || !skuPatterns.length || !Number.isFinite(value) || value <= 0) {
+
+          setPromoCrudError(true); setPromoCrudMessage('Completa código, al menos un SKU/prefijo y un descuento positivo.'); return;
+
+        }
+
+        if (promoForm.tipoDescuento === 'PORCENTAJE' && value > 100) {
+
+          setPromoCrudError(true); setPromoCrudMessage('El porcentaje no puede superar el 100%.'); return;
+
+        }
+
+        setPromoCrudLoading(true); setPromoCrudError(false); setPromoCrudMessage('Guardando promoción...');
+
+        const promotion = {...promoForm, patronSKU:skuPatterns.join(', '), valorDescuento:value};
+
+        try {
+
+          const result = await promotionApiRequest({
+
+            action:promoEditingId ? 'promotion_update' : 'promotion_create',
+
+            adminKey:promoAdminKey, ...(promoEditingId ? {id:promoEditingId} : {}), promotion
+
+          });
+
+          await loadPromotionsFromApi();
+
+          resetPromotionForm();
+
+          setPromoCrudMessage(result.message || 'Promoción guardada correctamente.');
+
+        } catch (err) {
+
+          setPromoCrudError(true); setPromoCrudMessage(err.message || 'No fue posible guardar la promoción.');
+
+        } finally { setPromoCrudLoading(false); }
+
+      };
+
+
+
+      const togglePromotion = async row => {
+
+        setPromoCrudLoading(true); setPromoCrudError(false); setPromoCrudMessage('Actualizando estado...');
+
+        try {
+
+          const result = await promotionApiRequest({action:'promotion_toggle',adminKey:promoAdminKey,id:row.id,active:!row.enabled});
+
+          await loadPromotionsFromApi();
+
+          setPromoCrudMessage(result.message || 'Estado actualizado.');
+
+        } catch (err) { setPromoCrudError(true); setPromoCrudMessage(err.message || 'No fue posible cambiar el estado.'); }
+
+        finally { setPromoCrudLoading(false); }
+
+      };
+
+
+
+      const deletePromotion = async row => {
+
+        if (!window.confirm('¿Eliminar definitivamente la promoción ' + row.code + '? Esta acción no se puede deshacer.')) return;
+
+        setPromoCrudLoading(true); setPromoCrudError(false); setPromoCrudMessage('Eliminando promoción...');
+
+        try {
+
+          const result = await promotionApiRequest({action:'promotion_delete',adminKey:promoAdminKey,id:row.id});
+
+          await loadPromotionsFromApi();
+
+          if (promoEditingId === row.id) resetPromotionForm();
+
+          setPromoCrudMessage(result.message || 'Promoción eliminada.');
+
+        } catch (err) { setPromoCrudError(true); setPromoCrudMessage(err.message || 'No fue posible eliminar la promoción.'); }
+
+        finally { setPromoCrudLoading(false); }
+
+      };
+
+
+
+      const promotionRows = useMemo(() => {
+
+        const today = new Date();
+
+        today.setHours(0, 0, 0, 0);
+
+        return (promotionsData || []).map((row, index) => {
+
+          const code = String(row['B'] || row['col_1'] || '').trim();
+
+          const region = String(row['C'] || row['col_2'] || '').trim();
+
+          const matchType = String(row['D'] || row['col_3'] || '').trim();
+
+          const pattern = String(row['E'] || row['col_4'] || '').trim();
+
+          const discountType = clean(row['F'] || row['col_5'] || '');
+
+          const discountValue = parsePrice(row['G'] ?? row['col_6']);
+
+          const startDate = parsePromotionDate(row['H'] ?? row['col_7']);
+
+          const endDate = parsePromotionDate(row['I'] ?? row['col_8']);
+
+          const enabled = isSheetTrue(row['J'] ?? row['col_9']);
+
+          let status = 'Activa';
+
+          if (!enabled) status = 'Inactiva';
+
+          else if (startDate && today < startDate) status = 'Programada';
+
+          else if (endDate && today > endDate) status = 'Vencida';
+
+          return { id:String(row['A'] || row['col_0'] || index), code, region, matchType, pattern, discountType, discountValue, startDate, endDate, enabled, status, excludeDnp:isSheetTrue(row['K'] ?? row['col_10']), notes:String(row['L'] || row['col_11'] || '').trim() };
+
+        }).filter(row => row.code);
+
+      }, [promotionsData]);
+
+
+
+      const filteredPromotionRows = useMemo(() => {
+
+        const query = clean(promotionSearch);
+
+        return promotionRows.filter(row => {
+
+          const matchesSearch = !query || clean([row.code,row.pattern,row.region,row.notes].join(' ')).includes(query);
+
+          const matchesRegion = promotionRegionFilter === 'TODAS' || row.region.split(',').map(clean).includes(promotionRegionFilter);
+
+          const matchesStatus = promotionStatusFilter === 'TODAS' || clean(row.status) === promotionStatusFilter;
+
+          return matchesSearch && matchesRegion && matchesStatus;
+
+        });
+
+      }, [promotionRows,promotionSearch,promotionRegionFilter,promotionStatusFilter]);
+
+
+
+      const promotionCounts = useMemo(() => ({
+
+        total:promotionRows.length,
+
+        active:promotionRows.filter(row => row.status === 'Activa').length,
+
+        inactive:promotionRows.filter(row => row.status !== 'Activa').length
+
+      }), [promotionRows]);
+
+
+
+      const analyticsSummary = useMemo(() => {
+
+        const field = (event, ...candidates) => {
+
+          if (!event) return '';
+
+          const keys = Object.keys(event);
+
+          for (const candidate of candidates) {
+
+            const match = keys.find(key => clean(key) === clean(candidate));
+
+            if (match && event[match] !== null && event[match] !== undefined) return event[match];
+
+          }
+
+          return '';
+
+        };
+
+
+
+        const normalized = filteredAnalytics.map(event => ({
+
+          ...event,
+
+          eventType: String(field(event, 'eventType', 'Tipo', 'tipo')).trim().toLowerCase(),
+
+          sku: String(field(event, 'sku', 'SKU', 'Referencia')).trim(),
+
+          partnerName: String(field(event, 'partnerName', 'Partner', 'Nombre partner')).trim(),
+
+          promoCode: String(field(event, 'promoCode', 'Promoción', 'Promo')).trim(),
+
+          username: String(field(event, 'username', 'Usuario', 'Username')).trim(),
+
+          userName: String(field(event, 'userName', 'Nombre', 'Nombre usuario')).trim(),
+
+          status: String(field(event, 'status', 'Estado')).trim().toUpperCase(),
+
+          accessMessage: String(field(event, 'accessMessage', 'Detalle', 'Motivo')).trim(),
+
+          discountApplied: field(event, 'discountApplied', 'Descuento USD', 'Descuento')
+
+        }));
+
+
+
+        const sessions = normalized.filter(e => e.eventType === 'quote_session');
+
+        const items = normalized.filter(e => e.eventType === 'quote_item');
+
+        
+
+        const byKey = (rows, keyFn) => {
+
+          const map = new Map();
+
+          rows.forEach(row => {
+
+            const key = String(keyFn(row) || '').trim();
+
+            if (!key) return;
+
+            map.set(key, (map.get(key) || 0) + 1);
+
+          });
+
+          return [...map.entries()]
+
+            .map(([name, count]) => ({ name, count }))
+
+            .sort((a,b) => b.count - a.count || a.name.localeCompare(b.name));
+
+        };
+
+
+
+        const eligibleItems = items.filter(e => e.status === 'OK');
+
+        const promos = eligibleItems.filter(e => Number(e.discountApplied) > 0 && e.promoCode && clean(e.promoCode) !== 'SIN PROMO');
+
+        const blocked = items.filter(e => e.status === 'BLOQUEADA');
+
+        const noPrice = items.filter(e => e.status === 'SIN_PRECIO');
+
+        const noPriceUnique = new Set(noPrice.map(e => clean(e.sku)).filter(Boolean)).size;
+
+
+
+        return {
+
+          quotes: sessions.length,
+
+          skuQueries: items.length,
+
+          partners: new Set(sessions.map(e => clean(e.partnerName)).filter(Boolean)).size,
+
+          promoUses: promos.length,
+
+          discounts: eligibleItems.reduce((sum, e) => sum + (Number(e.discountApplied) || 0), 0),
+
+          blocked: blocked.length,
+
+          noPrice: noPriceUnique,
+
+          users: new Set(sessions.map(e => clean(e.username)).filter(Boolean)).size,
+
+          topSkus: byKey(items, e => e.sku).slice(0, 8),
+
+          topPartners: byKey(sessions, e => e.partnerName).slice(0, 8),
+
+          topPromos: byKey(promos, e => e.promoCode).slice(0, 8),
+
+          activity: byKey(sessions, e => {
+
+            const name = e.userName || e.username;
+
+            return name ? (e.username ? `${name} · ${e.username}` : name) : '';
+
+          }).slice(0, 10),
+
+          noPriceRows: byKey(noPrice, e => e.sku).slice(0, 8),
+
+          blockedRows: byKey(blocked, e => e.accessMessage || 'Acceso restringido').slice(0, 8),
+
+          debug: {
+
+            loaded: normalized.length,
+
+            sessions: sessions.length,
+
+            items: items.length,
+
+            skuRows: byKey(items, e => e.sku).length,
+
+            partnerRows: byKey(sessions, e => e.partnerName).length,
+
+            promoRows: byKey(promos, e => e.promoCode).length,
+
+            activityRows: byKey(sessions, e => {
+
+              const name = e.userName || e.username;
+
+              return name ? (e.username ? `${name} · ${e.username}` : name) : '';
+
+            }).length,
+
+            sampleFields: Object.keys(filteredAnalytics[0] || {}).join(', ') || 'Sin eventos'
+
+          }
+
+        };
+
+      }, [filteredAnalytics]);
+
+
+
+      const exportAnalytics = () => {
+
+        if (!window.XLSX) { alert('No fue posible cargar el módulo de Excel. Recarga la página e intenta de nuevo.'); return; }
+
+        const workbook = window.XLSX.utils.book_new();
+
+        const eventsSheet = window.XLSX.utils.json_to_sheet(filteredAnalytics.map(e => ({
+
+          Fecha: e.timestamp || '', Tipo: e.eventType || '', Usuario: e.username || '', Nombre: e.userName || '', SKU: e.sku || '',
+
+          Partner: e.partnerName || '', Nivel: e.partnerLevel || '', País: e.country || '', Región: e.region || '',
+
+          'Precio base USD': e.basePrice ?? '', 'Precio final USD': e.finalPrice ?? '', 'Descuento USD': e.discountApplied ?? '',
+
+          Promoción: e.promoCode || '', 'Acceso permitido': e.accessAllowed ?? '', Estado: e.status || '', Detalle: e.accessMessage || ''
+
+        })));
+
+        window.XLSX.utils.book_append_sheet(workbook, eventsSheet, 'Eventos');
+
+        const summarySheet = window.XLSX.utils.aoa_to_sheet([
+
+          ['ZEBRA PRICE DESK · DASHBOARD COMERCIAL'], ['Periodo', analyticsPeriod === 'all' ? 'Histórico completo' : `Últimos ${analyticsPeriod} días`],
+
+          ['Cotizaciones generadas', analyticsSummary.quotes], ['SKUs consultados', analyticsSummary.skuQueries],
+
+          ['Partners cotizados', analyticsSummary.partners], ['Promociones utilizadas', analyticsSummary.promoUses],
+
+          ['Descuentos otorgados USD', analyticsSummary.discounts], ['Consultas bloqueadas', analyticsSummary.blocked],
+
+          ['SKUs sin precio', analyticsSummary.noPrice], ['Usuarios activos', analyticsSummary.users]
+
+        ]);
+
+        window.XLSX.utils.book_append_sheet(workbook, summarySheet, 'Resumen');
+
+        window.XLSX.writeFile(workbook, `Zebra_Price_Desk_Dashboard_${Date.now()}.xlsx`);
+
+      };
+
+
+
+      useEffect(() => { syncDataFromDrive(); }, []);
+
+
+
+      const syncDataFromDrive = async () => {
+
+        setLoadingDrive(true);
+
+        setSyncStatus('Sincronizando con Google Sheets...');
+
+        try {
+
+          const [dnpRes, priceRes, partnerRes, usersRes, promotionsRes] = await Promise.all([
+
+            fetchGoogleSheetJson(DEFAULT_DNP_SHEET_ID),
+
+            fetchGoogleSheetJson(DEFAULT_PRICE_LIST_SHEET_ID),
+
+            fetchGoogleSheetJson(DEFAULT_PARTNER_LEVEL_SHEET_ID),
+
+            fetchGoogleSheetJson(DEFAULT_USERS_SHEET_ID),
+
+            fetchGoogleSheetJson(DEFAULT_PROMOTIONS_SHEET_ID)
+
+          ]);
+
+          if (!promotionsRes || promotionsRes.length === 0) {
+
+            throw new Error('No se pudieron cargar las reglas de promociones. Verifica el acceso a la hoja Zebra Price Desk - Promociones.');
+
+          }
+
+          setDnpData(dnpRes || []);
+
+          setPriceListData(priceRes || []);
+
+          setPartnerLevelData(partnerRes || []);
+
+          setPromotionsData(promotionsRes);
+
+          const syncedUsers = usersRes || [];
+
+          setUsersData(syncedUsers);
+
+
+
+          if (currentUser) {
+
+            const username = clean(currentUser.username);
+
+            const matchedUser = syncedUsers.find(u => clean(
+
+              u['A'] || u['col_0'] || u['Usuario'] || u['Username'] || u['User'] || ''
+
+            ) === username);
+
+            if (!matchedUser) {
+
+              setCurrentUser(null);
+
+              setLoginUsername('');
+
+              
+
+              setPromoAdminUnlocked(false);
+
+              setPromoAdminKey('');
+
+              setActiveModule('quote');
+
+              setAdminSection('dashboard');
+
+              setPromoEditingId(''); 
+
+              
+
+              try { sessionStorage.removeItem('zebra_user_session'); sessionStorage.removeItem('zebra_last_activity'); } catch (e) {}
+
+            } else {
+
+              const roleValue = matchedUser['D'] || matchedUser['col_3'] || matchedUser['Rol'] || matchedUser['Role'] || matchedUser['Perfil'] || matchedUser['Tipo de usuario'] || '';
+
+              const updatedUser = { ...currentUser, role: clean(roleValue) };
+
+              setCurrentUser(updatedUser);
+
+              try { sessionStorage.setItem('zebra_user_session', JSON.stringify(updatedUser)); } catch (e) {}
+
+              if (clean(roleValue) !== 'ADMINISTRADOR') setActiveModule('quote');
+
+            }
+
+          }
+
+          setUsersAccessVerified(true);
+
+          setSyncStatus(`Cargado con éxito: ${priceRes?.length || 0} precios, ${dnpRes?.length || 0} DNP, ${partnerRes?.length || 0} partners, ${syncedUsers.length || 0} usuarios y ${promotionsRes.length} reglas de promoción.`);
+
+        } catch (err) {
+
+          console.error('Error al sincronizar con Google Sheets:', err);
+
+          setSyncStatus('Error al cargar datos. Revisa el acceso a las hojas de Google Sheets.');
+
+        } finally { setLoadingDrive(false); }
+
+      };
+
+
+
+      const handleLoginSubmit = (e) => {
+
+        e?.preventDefault();
+
+        setLoginError('');
+
+        const targetUser = clean(loginUsername);
+
+        if (!targetUser) { setLoginError('Por favor ingresa tu nombre de usuario autorizado.'); return; }
+
+        const userMatch = usersData.find(u => {
+
+          const userVal = u['A'] || u['col_0'] || u['Usuario'] || u['Username'] || u['User'] || '';
+
+          return clean(userVal) === targetUser;
+
+        });
+
+        if (userMatch) {
+
+          const firstName = (userMatch['B'] || userMatch['col_1'] || userMatch['Nombre'] || userMatch['Name'] || '').toString().trim();
+
+          const lastName = (userMatch['C'] || userMatch['col_2'] || userMatch['Apellido'] || userMatch['Last Name'] || '').toString().trim();
+
+          const fullName = `${firstName} ${lastName}`.trim() || loginUsername;
+
+          const roleValue = userMatch['D'] || userMatch['col_3'] || userMatch['Rol'] || userMatch['Role'] || userMatch['Perfil'] || userMatch['Tipo de usuario'] || '';
+
+          const userObj = { username: loginUsername, name: fullName, role: clean(roleValue) };
+
+          setCurrentUser(userObj);
+
+          setActiveModule('quote');
+
+          try {
+
+            sessionStorage.setItem('zebra_user_session', JSON.stringify(userObj));
+
+            sessionStorage.setItem('zebra_last_activity', Date.now().toString());
+
+          } catch (e) {}
+
+        } else {
+
+          setLoginError('El nombre de usuario no se encuentra registrado en el sistema. Verifica con el administrador.');
+
+        }
+
+      };
+
+
+
+      const handleLogout = (reason = '') => {
+
+        setCurrentUser(null);
+
+        setLoginUsername('');
+
+        setLoginError(typeof reason === 'string' ? reason : '');
+
+        
+
+        setPromoAdminUnlocked(false);
+
+        setPromoAdminKey('');
+
+        setActiveModule('quote');
+
+        setAdminSection('dashboard');
+
+        setPromoEditingId('');
+
+
+
+        try { 
+
+          sessionStorage.removeItem('zebra_user_session'); 
+
+          sessionStorage.removeItem('zebra_last_activity'); 
+
+        } catch (e) {}
+
+      };
+
+
+
+      const INACTIVITY_LIMIT = 2 * 60 * 60 * 1000;
+
+      useEffect(() => {
+
+        if (!currentUser) return;
+
+        let logoutTimer;
+
+        const resetInactivityTimer = () => {
+
+          if (logoutTimer) clearTimeout(logoutTimer);
+
+          try { sessionStorage.setItem('zebra_last_activity', Date.now().toString()); } catch (e) {}
+
+          logoutTimer = setTimeout(() => handleLogout('Tu sesión se cerró automáticamente tras 2 horas de inactividad.'), INACTIVITY_LIMIT);
+
+        };
+
+        try {
+
+          const lastActive = sessionStorage.getItem('zebra_last_activity');
+
+          if (lastActive) {
+
+            const elapsed = Date.now() - parseInt(lastActive, 10);
+
+            if (elapsed >= INACTIVITY_LIMIT) { handleLogout('Tu sesión anterior expiró por 2 horas de inactividad.'); return; }
+
+          }
+
+        } catch (e) {}
+
+        resetInactivityTimer();
+
+        const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+
+        const onActivity = () => resetInactivityTimer();
+
+        activityEvents.forEach(evt => window.addEventListener(evt, onActivity, { passive: true }));
+
+        return () => {
+
+          if (logoutTimer) clearTimeout(logoutTimer);
+
+          activityEvents.forEach(evt => window.removeEventListener(evt, onActivity));
+
+        };
+
+      }, [currentUser]);
+
+
+
+      const partnerList = useMemo(() => {
+
+        if (!partnerLevelData || partnerLevelData.length === 0) return [];
+
+        const list = [];
+
+        const seenKeys = new Set();
+
+        partnerLevelData.forEach(p => {
+
+          if (!p) return;
+
+          const name = (p['B'] || p['col_1'] || p['Partner'] || p['Partner Name'] || p['Account Name'] || p['Company'] || p['Nombre'] || '').toString().trim();
+
+          let id = (p['A'] || p['col_0'] || p['Partner Program ID Number'] || p['ID'] || '').toString().trim();
+
+          if (!id) {
+
+            const foundId = Object.values(p).find(v => v && /^\d{3,8}$/.test(v.toString().trim()));
+
+            if (foundId) id = foundId.toString().trim();
+
+          }
+
+          const cleanName = name.toUpperCase();
+
+          if (!name || cleanName.includes('POR DEFINIR') || cleanName === 'N/A' || cleanName === 'NAME') return;
+
+          const uniqueKey = `${id}-${cleanName}`;
+
+          if (!seenKeys.has(uniqueKey)) { seenKeys.add(uniqueKey); list.push({ id, name, raw: p }); }
+
+        });
+
+        return list.sort((a,b) => a.name.localeCompare(b.name));
+
+      }, [partnerLevelData]);
+
+
+
+      const filteredPartners = useMemo(() => {
+
+        if (!partnerNameInput) return partnerList.slice(0, 20);
+
+        const search = clean(partnerNameInput);
+
+        return partnerList.filter(p => clean(p.name).includes(search) || clean(p.id).includes(search)).slice(0, 20);
+
+      }, [partnerList, partnerNameInput]);
+
+
+
+      useEffect(() => {
+
+        const handleClickOutside = (event) => {
+
+          if (partnerDropdownRef.current && !partnerDropdownRef.current.contains(event.target)) setShowPartnerDropdown(false);
+
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+
+      }, []);
+
+
+
+      const handlePartnerIdChange = (val) => {
+
+        setPartnerId(val);
+
+        const cleanVal = clean(val);
+
+        if (!cleanVal) { setPartnerNameInput(''); return; }
+
+        const match = partnerList.find(p => clean(p.id) === cleanVal || Object.values(p.raw).some(v => clean(v) === cleanVal));
+
+        if (match) setPartnerNameInput(match.name);
+
+      };
+
+      const handlePartnerNameChange = (val) => {
+
+        setPartnerNameInput(val);
+
+        setShowPartnerDropdown(true);
+
+        const cleanVal = clean(val);
+
+        if (!cleanVal) { setPartnerId(''); return; }
+
+        const exactMatch = partnerList.find(p => clean(p.name) === cleanVal);
+
+        if (exactMatch) setPartnerId(exactMatch.id);
+
+      };
+
+      const handleSelectPartner = (p) => {
+
+        setPartnerNameInput(p.name);
+
+        setPartnerId(p.id);
+
+        setShowPartnerDropdown(false);
+
+        setPartnerError(false);
+
+        if (p.raw) setCurrentPartner(p.raw);
+
+      };
+
+
+
+      const validateAccess = (code, level) => {
+
+        const c = clean(code);
+
+        const lvl = clean(level);
+
+        if (lvl === 'INACTIVE') {
+
+          if (c.includes('1-OPEN')) return { allowed: true };
+
+          return { allowed: false, msg: 'Requiere inscribirse al Programa de Canales' };
+
+        }
+
+        if (c.includes('1-OPEN')) return { allowed: true };
+
+        if (c.includes('2-PROGRAM')) {
+
+          const isPartner = lvl && lvl !== '' && lvl !== 'N/A';
+
+          return isPartner ? { allowed: true } : { allowed: false, msg: 'Requiere Nivel de Partner' };
+
+        }
+
+        if (c.includes('3-SPECIALIST')) return { allowed: true };
+
+        if (c.includes('4-QUALIFICATION') || c.includes('5-APPROVAL')) return { allowed: false, msg: 'Aprobación de Marca Pendiente' };
+
+        return { allowed: true };
+
+      };
+
+
+
+      const getSingleQuote = (sku, partnerObj, regionParam) => {
+
+        const targetSku = clean(sku);
+
+        if (!targetSku) return null;
+
+        const priceItem = priceListData.find(item => clean(item['A']) === targetSku || clean(item['Material']) === targetSku || clean(item['Part Number']) === targetSku);
+
+        const dnpItem = dnpData.find(item => clean(item['A']) === targetSku || clean(item['Part Number (SKU)']) === targetSku || clean(item['Material']) === targetSku);
+
+        const NOT_FOUND_MSG = 'No encontrado en bases de datos, verifique que esté correcto o comuníquese con el equipo de Zebra';
+
+        if (!priceItem && !dnpItem) return { sku: targetSku, error: NOT_FOUND_MSG, source: 'N/A', access: { allowed: false, msg: 'No encontrado' } };
+
+
+
+        let partnerLevel = 'Registered Reseller';
+
+        let country = 'Colombia';
+
+        let partnerName = 'Partner Nuevo';
+
+        let isSubDistri = false;
+
+
+
+        if (partnerType === 'registered' && partnerObj) {
+
+          partnerName = partnerObj['B'] || partnerObj['Partner'] || partnerNameInput;
+
+          country = partnerObj['E'] || partnerObj['col_4'] || 'Colombia';
+
+          if (clean(partnerObj['AC']) === 'SUB - DISTRIBUTOR' || clean(partnerObj['AC']) === 'SUB-DISTRIBUTOR') {
+
+            isSubDistri = true;
+
+            partnerLevel = 'Sub - Distributor';
+
+          } else {
+
+            partnerLevel = partnerObj['Reseller Track'] || partnerObj['Partner Track'] || partnerObj['D'] || 'Registered Reseller';
+
+          }
+
+        } else if (partnerType === 'new') {
+
+          partnerName = newPartnerName || 'Partner Nuevo';
+
+          partnerLevel = 'Registered Reseller';
+
+          country = manualRegion || 'Colombia';
+
+        }
+
+
+
+        const effectiveRegion = manualRegion || getRegionForCountry(country);
+
+        const accessCode = priceItem ? (priceItem['Access Code'] || priceItem['B'] || '1-Open') : '1-Open';
+
+        const access = validateAccess(accessCode, partnerLevel);
+
+        let msrp = 'N/A';
+
+        const rawMsrp = (dnpItem && dnpItem['D']) ? dnpItem['D'] : (priceItem && priceItem['D']) ? priceItem['D'] : null;
+
+        const parsedMsrp = parsePrice(rawMsrp);
+
+        if (parsedMsrp !== null) msrp = parsedMsrp.toFixed(2);
+
+        else if (rawMsrp) msrp = rawMsrp.toString().replace(/^\$/, '').trim();
+
+
+
+        const normalizedLevel = clean(partnerLevel).replace(/[^A-Z0-9]+/g, ' ').trim();
+
+        let dnpLevelColumn = 'U';
+
+        if (normalizedLevel.includes('GLOBAL SYSTEM INTEGRATOR') ||
+
+            normalizedLevel.includes('PREMIER BUSINESS PARTNER') ||
+
+            normalizedLevel.includes('PREMIERE BUSINESS PARTNER') ||
+
+            normalizedLevel.includes('PREMIER SOLUTION PARTNER') ||
+
+            normalizedLevel.includes('PREMIERE SOLUTION PARTNER')) {
+
+          dnpLevelColumn = 'M';
+
+        } else if (normalizedLevel.includes('BUSINESS PARTNER') || normalizedLevel.includes('SOLUTION PARTNER')) {
+
+          dnpLevelColumn = 'Q';
+
+        } else if (normalizedLevel.includes('SUB DISTRIBUTOR') || normalizedLevel.includes('AUTHORIZED SUB DISTRIBUTOR')) {
+
+          dnpLevelColumn = 'Y';
+
+        } else if (normalizedLevel.includes('BROADLINE TECHNOLOGY RESELLER') || normalizedLevel.includes('REGISTERED RESELLER')) {
+
+          dnpLevelColumn = 'U';
+
+        }
+
+
+
+        const listSpecializations = [
+
+          { label: 'Card Printer Specialist', column: 'O' },
+
+          { label: 'Advanced Card Printer Specialist', column: 'P' },
+
+          { label: 'Advanced Print Engine Specialist', column: 'Q' },
+
+          { label: 'Labeling Solutions Specialist', column: 'R' },
+
+          { label: 'Advanced Labeling Solutions Specialist', column: 'S' },
+
+          { label: 'RFID Specialist', column: 'T' },
+
+          { label: 'Advanced RFID Specialist', column: 'U' },
+
+          { label: 'Advanced Printer Repair Specialist - Card Printer', column: 'V' },
+
+          { label: 'Printer Repair Specialist - Card Printer', column: 'W' },
+
+          { label: 'Advanced Printer Repair Specialist - Label Printer', column: 'X' },
+
+          { label: 'Printer Repair Specialist - Label Printer', column: 'Y' },
+
+          { label: 'Advanced Printer Repair Specialist - Mobile Printer', column: 'Z' },
+
+          { label: 'Printer Repair Specialist - Mobile Printer', column: 'AA' },
+
+          { label: 'Advanced Printer Repair Specialist - Print Engine', column: 'AB' },
+
+          { label: 'Printer Repair Specialist - Print Engine', column: 'AC' },
+
+          { label: 'Service Approval Specialist - Card Printer', column: 'AD' },
+
+          { label: 'Service Approval Specialist - Label Printer', column: 'AE' },
+
+          { label: 'Service Approval Specialist - Mobile Printer', column: 'AF' },
+
+          { label: 'Service Approval Specialist - Print Engine', column: 'AG' },
+
+          { label: 'Purchase Approval Specialist - Card Printer', column: 'AH' },
+
+          { label: 'Purchase Approval Specialist - Label Printer', column: 'AI' },
+
+          { label: 'Purchase Approval Specialist - Mobile Printer', column: 'AJ' },
+
+          { label: 'Purchase Approval Specialist - Print Engine', column: 'AK' },
+
+          { label: 'TC20/TC25 Battery Replacement Program', column: 'AL' },
+
+          { label: 'Healthcare Specialist', column: 'AM' },
+
+          { label: 'Advanced Healthcare Specialist', column: 'AN' }
+
+        ];
+
+
+
+        const partnerEntries = partnerObj ? Object.entries(partnerObj) : [];
+
+        const isActiveFlag = value => {
+
+          const v = clean(value);
+
+          return !!v && !['0', 'FALSE', 'NO', 'N', 'INACTIVE', 'INACTIVO', 'NOT ACTIVE'].includes(v);
+
+        };
+
+        const hasSpecialization = label => {
+
+          const target = clean(label).replace(/[^A-Z0-9]+/g, ' ').trim();
+
+          const targetVariants = [target, target.replace('PRINTER ', 'PRINTERS ')];
+
+          const matchesExactSpecialization = source => targetVariants.some(variant => {
+
+            let index = source.indexOf(variant);
+
+            while (index !== -1) {
+
+              const prefix = source.slice(0, index).trim();
+
+              if (variant.startsWith('ADVANCED ') || !prefix.endsWith('ADVANCED')) return true;
+
+              index = source.indexOf(variant, index + variant.length);
+
+            }
+
+            return false;
+
+          });
+
+          return partnerEntries.some(([key, value]) => {
+
+            const normalizedValue = clean(value).replace(/[^A-Z0-9]+/g, ' ').trim();
+
+            const normalizedKey = clean(key).replace(/[^A-Z0-9]+/g, ' ').trim();
+
+            if (matchesExactSpecialization(normalizedValue)) return true;
+
+            return matchesExactSpecialization(normalizedKey) && isActiveFlag(value);
+
+          });
+
+        };
+
+
+
+        let bestPrice = null;
+
+        let bestSource = '';
+
+
+
+        if (dnpItem) {
+
+          const dnpCandidates = [];
+
+          const levelPrice = parsePrice(dnpItem[dnpLevelColumn]);
+
+          if (levelPrice !== null) dnpCandidates.push({ price: levelPrice, source: `DNP (Nivel ${partnerLevel} - Col. ${dnpLevelColumn})` });
+
+
+
+          if (hasSpecialization('Advanced Card Printer Specialist') || hasSpecialization('Advanced Card Printers Specialist')) {
+
+            const price = parsePrice(dnpItem['AA']);
+
+            if (price !== null) dnpCandidates.push({ price, source: 'DNP (Advanced Card Printers Specialist - Col. AA)' });
+
+          }
+
+          if (hasSpecialization('Card Printer Specialist') || hasSpecialization('Card Printers Specialist')) {
+
+            const price = parsePrice(dnpItem['AC']);
+
+            if (price !== null) dnpCandidates.push({ price, source: 'DNP (Card Printers Specialist - Col. AC)' });
+
+          }
+
+
+
+          const dnpPriceColumns = ['M', 'Q', 'U', 'Y', 'AA', 'AC'];
+
+          const hasAnyDnpPrice = dnpPriceColumns.some(column => parsePrice(dnpItem[column]) !== null);
+
+          if (!hasAnyDnpPrice) {
+
+            return {
+
+              sku: targetSku,
+
+              error: 'Error de integridad DNP: el SKU existe, pero todas sus columnas de precios están vacías. Se requiere corregir el registro en DNP.',
+
+              source: 'DNP · Error de integridad',
+
+              access: { allowed: false, msg: 'Registro DNP sin precios: requiere corrección' },
+
+              partnerName, partnerLevel, country, region: effectiveRegion
+
+            };
+
+          }
+
+
+
+          if (dnpCandidates.length > 0) {
+
+            dnpCandidates.sort((a, b) => a.price - b.price);
+
+            bestPrice = dnpCandidates[0].price;
+
+            bestSource = dnpCandidates[0].source;
+
+          } else {
+
+            return {
+
+              sku: targetSku,
+
+              error: `Sin precio DNP aplicable para el nivel ${partnerLevel} ni sus especializaciones DNP activas. Revisar la matriz de precios.`,
+
+              source: 'DNP · Precio aplicable no disponible',
+
+              access: { allowed: false, msg: 'Sin precio DNP aplicable' },
+
+              partnerName, partnerLevel, country, region: effectiveRegion
+
+            };
+
+          }
+
+        } else if (priceItem) {
+
+          const listCandidates = [];
+
+          const listLevelColumns = {
+
+            'PREMIER BUSINESS PARTNER': 'G',
+
+            'BUSINESS PARTNER': 'H',
+
+            'PREMIER SOLUTION PARTNER': 'I',
+
+            'SOLUTION PARTNER': 'J',
+
+            'PREMIER BROADLINE TECHNOLOGY RESELLER': 'K',
+
+            'BROADLINE TECHNOLOGY RESELLER': 'L',
+
+            'REGISTERED RESELLER': 'M',
+
+            'GLOBAL SYSTEM INTEGRATOR': 'N',
+
+            'SUB DISTRIBUTOR': 'AO',
+
+            'AUTHORIZED SUB DISTRIBUTOR': 'AO'
+
+          };
+
+          let listLevelColumn = listLevelColumns[normalizedLevel];
+
+          if (!listLevelColumn && normalizedLevel.includes('SUB DISTRIBUTOR')) listLevelColumn = 'AO';
+
+          if (!listLevelColumn && normalizedLevel.includes('PREMIER BUSINESS PARTNER')) listLevelColumn = 'G';
+
+          if (!listLevelColumn && normalizedLevel.includes('BUSINESS PARTNER')) listLevelColumn = 'H';
+
+          if (!listLevelColumn && normalizedLevel.includes('PREMIER SOLUTION PARTNER')) listLevelColumn = 'I';
+
+          if (!listLevelColumn && normalizedLevel.includes('SOLUTION PARTNER')) listLevelColumn = 'J';
+
+          if (!listLevelColumn && normalizedLevel.includes('PREMIER BROADLINE TECHNOLOGY RESELLER')) listLevelColumn = 'K';
+
+          if (!listLevelColumn && normalizedLevel.includes('BROADLINE TECHNOLOGY RESELLER')) listLevelColumn = 'L';
+
+          if (!listLevelColumn && normalizedLevel.includes('GLOBAL SYSTEM INTEGRATOR')) listLevelColumn = 'N';
+
+          if (!listLevelColumn) listLevelColumn = 'M';
+
+
+
+          const levelListPrice = parsePrice(priceItem[listLevelColumn]);
+
+          if (levelListPrice !== null) listCandidates.push({ price: levelListPrice, source: `Lista (Nivel ${partnerLevel} - Col. ${listLevelColumn})` });
+
+
+
+          listSpecializations.forEach(({ label, column }) => {
+
+            if (!hasSpecialization(label)) return;
+
+            const price = parsePrice(priceItem[column]);
+
+            if (price !== null) listCandidates.push({ price, source: `Lista (${label} - Col. ${column})` });
+
+          });
+
+
+
+          if (listCandidates.length > 0) {
+
+            listCandidates.sort((a, b) => a.price - b.price);
+
+            bestPrice = listCandidates[0].price;
+
+            bestSource = listCandidates[0].source;
+
+          }
+
+        }
+
+
+
+        if (bestPrice !== null) {
+
+          const promoEval = evaluatePromotions(targetSku, effectiveRegion, country, bestPrice, Boolean(dnpItem), promotionsData);
+
+          const originalItem = priceItem || dnpItem;
+
+          
+
+          const categoryAT = clean(originalItem['AT'] || originalItem['col_45'] || getFlexibleValue(originalItem, 'FAMILY') || getFlexibleValue(originalItem, 'LOB') || '');
+
+          const isBarcodeSupply = categoryAT.includes('BARCODE SUPPLIES');
+
+          
+
+          let boxQty = 1;
+
+          
+
+          if (isBarcodeSupply) {
+
+            const rawBoxQty = originalItem['BQ'] || originalItem['col_68'] || getFlexibleValue(originalItem, 'BOX') || getFlexibleValue(originalItem, 'MOQ') || getFlexibleValue(originalItem, 'UNID') || 1;
+
+            const parsedBoxQty = parseInt(rawBoxQty, 10);
+
+            if (!isNaN(parsedBoxQty) && parsedBoxQty > 0) {
+
+              boxQty = parsedBoxQty;
+
+            }
+
+          }
+
+          
+
+          const boxTotal = promoEval.finalPrice * boxQty;
+
+
+
+          return {
+
+            sku: targetSku,
+
+            description: String(originalItem?.['Material Description'] || originalItem?.['Description'] || 'Producto Zebra'),
+
+            basePrice: bestPrice,
+
+            finalPrice: promoEval.finalPrice,
+
+            boxQty: boxQty,
+
+            boxTotal: boxTotal,
+
+            promoCode: promoEval.promoCode,
+
+            discountApplied: promoEval.discountApplied,
+
+            listPrice: msrp,
+
+            source: bestSource,
+
+            access,
+
+            rawAccessCode: String(accessCode || '1-Open'),
+
+            partnerName, partnerLevel, country, region: effectiveRegion
+
+          };
+
+        }
+
+        return { sku: targetSku, error: 'Sin precio asignable en bases de datos', source: 'N/A', access: { allowed: false, msg: 'Sin Precio' } };
+
+      };
+
+
+
+      const handleCalculate = () => {
+
+        setRegionError(false);
+
+        if (partnerType === 'registered' && !partnerId.trim() && !partnerNameInput.trim()) { setPartnerError(true); return; }
+
+        if (partnerType === 'new' && (!manualRegion || manualRegion === '')) { setRegionError(true); return; }
+
+        let partnerObj = null;
+
+        if (partnerType === 'registered') {
+
+          partnerObj = partnerLevelData.find(p => clean(p['A']) === clean(partnerId) || clean(p['B']) === clean(partnerNameInput));
+
+          if (!partnerObj && partnerId) partnerObj = partnerLevelData.find(p => Object.values(p).some(v => clean(v) === clean(partnerId)));
+
+          if (!partnerObj && partnerNameInput) partnerObj = partnerLevelData.find(p => clean(p['B']).includes(clean(partnerNameInput)));
+
+          if (partnerObj) setCurrentPartner(partnerObj);
+
+        }
+
+        let results = [];
+
+        if (inputMode === 'single') {
+
+          if (!skuSearch.trim()) { setSkuError(true); return; }
+
+          setSkuError(false);
+
+          results = [getSingleQuote(skuSearch, partnerObj, manualRegion)].filter(Boolean);
+
+          setSearchResult(results[0] || null);
+
+        } else {
+
+          const skus = bulkSkus.split(/[\n,]+/).map(s => s.trim()).filter(s => s !== '');
+
+          if (skus.length === 0) { setSkuError(true); return; }
+
+          setSkuError(false);
+
+          results = skus.map(s => getSingleQuote(s, partnerObj, manualRegion)).filter(Boolean);
+
+          setBulkResults(results);
+
+        }
+
+        const quoteId = `Q-${Date.now()}-${Math.floor(Math.random()*100000)}`;
+
+        const first = results[0] || {};
+
+        const timestamp = new Date().toISOString();
+
+        const common = {
+
+          timestamp, quoteId, username: currentUser?.username || '', userName: currentUser?.name || '',
+
+          partnerName: first.partnerName || (partnerType === 'new' ? newPartnerName : (partnerObj?.['B'] || partnerNameInput)) || 'Partner no identificado',
+
+          partnerId: partnerObj?.['A'] || partnerId || '', partnerLevel: first.partnerLevel || '', country: first.country || '', region: first.region || ''
+
+        };
+
+        const events = [{ ...common, eventType: 'quote_session', skuCount: results.length, status: inputMode === 'bulk' ? 'MASIVA' : 'INDIVIDUAL' }];
+
+        results.forEach(r => {
+
+          let status = 'OK';
+
+          if (r?.error && String(r.error).toLowerCase().includes('sin precio')) status = 'SIN_PRECIO';
+
+          else if (r?.error) status = 'NO_ENCONTRADO';
+
+          else if (r?.access && !r.access.allowed) status = 'BLOQUEADA';
+
+          events.push({
+
+            ...common, eventType: 'quote_item', sku: r?.sku || '', partnerName: r?.partnerName || common.partnerName,
+
+            partnerLevel: r?.partnerLevel || common.partnerLevel, country: r?.country || common.country, region: r?.region || common.region,
+
+            basePrice: r?.basePrice ?? '', finalPrice: r?.finalPrice ?? '', discountApplied: r?.discountApplied ?? 0,
+
+            promoCode: r?.promoCode || 'Sin Promo', accessAllowed: r?.access?.allowed ?? false,
+
+            accessMessage: r?.access?.msg || r?.error || '', status
+
+          });
+
+        });
+
+        sendAnalyticsEvents(events, currentUser?.username || '');
+
+      };
+
+
+
+      const getExportResults = () => (inputMode === 'single' ? [searchResult] : bulkResults).filter(Boolean);
+
+      
+
+      const exportToExcel = () => {
+
+        if (!window.XLSX) { alert('No fue posible cargar el módulo de Excel. Recarga la página e intenta de nuevo.'); return; }
+
+        const results = inputMode === 'single' ? [searchResult] : bulkResults;
+
+        const worksheetData = results.filter(Boolean).map(r => ({
+
+          Cliente: clientName.trim() || 'No especificado',
+          SKU: r.sku,
+
+          Descripción: r.description || r.error,
+
+          'Empaque': r.boxQty > 1 ? `Caja x ${r.boxQty} unds` : 'Unidad',
+
+          'MSRP (List Price Unitario)': r.listPrice,
+
+          'Precio Base Unitario (USD)': r.basePrice,
+
+          'Descuento Unitario (USD)': r.discountApplied ?? 0,
+
+          'Precio Final Unitario (USD)': r.finalPrice,
+
+          'TOTAL CAJA FOB Miami (USD)': r.boxTotal,
+
+          'Access Code': r.rawAccessCode,
+
+          'Estado / Alerta': r.access?.allowed ? 'VENTA PERMITIDA' : r.access?.msg,
+
+          'Nivel / Especialización (origen del precio)': r.source
+
+        }));
+
+        const worksheet = window.XLSX.utils.json_to_sheet(worksheetData);
+
+        const workbook = window.XLSX.utils.book_new();
+
+        window.XLSX.utils.book_append_sheet(workbook, worksheet, 'Cotización Zebra');
+
+        window.XLSX.writeFile(workbook, `Cotizacion_Zebra_${new Date().getTime()}.xlsx`);
+
+      };
+
+
+
+      const exportToPDF = async () => {
+
+        if (!window.jspdf) { alert('No fue posible cargar el módulo PDF. Recarga la página e intenta de nuevo.'); return; }
+
+        try {
+
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+          const validResults = getExportResults();
+          if (validResults.length === 0) return;
+
+          const loadLogo = (url) => new Promise((resolve) => {
+            const img = new Image();
+            if (!String(url).startsWith('data:')) img.crossOrigin = 'anonymous';
+            img.onload = () => {
+              try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth || img.width;
+                canvas.height = img.naturalHeight || img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                resolve({ data: canvas.toDataURL('image/png'), width: canvas.width, height: canvas.height });
+              } catch (_) { resolve(null); }
+            };
+            img.onerror = () => resolve(null);
+            img.src = url;
+          });
+
+          const [zebraLogo, intcomexLogo] = await Promise.all([
+            loadLogo('https://cdn.worldvectorlogo.com/logos/zebra-technologies-logo.svg'),
+            loadLogo('data:image/png;base64,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')
+          ]);
+
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          const partner = validResults[0]?.partnerName || (partnerType === 'new' ? newPartnerName : partnerNameInput) || 'No identificado';
+          const customer = clientName.trim() || 'No especificado';
+          const numericPrice = (value) => {
+            const number = Number(String(value ?? '').replace(/[$,\s]/g, ''));
+            return Number.isFinite(number) ? number : null;
+          };
+          const money = (value) => {
+            const number = numericPrice(value);
+            return number !== null ? `$${number.toFixed(2)}` : 'N/A';
+          };
+          const boxPriceLabel = (unitValue, boxQty) => {
+            const unit = numericPrice(unitValue);
+            if (unit === null) return 'N/A';
+            if (!(Number(boxQty) > 1)) return money(unit);
+            return `Unitario: ${money(unit)}\nCaja x ${boxQty}: ${money(unit * Number(boxQty))}`;
+          };
+          const fitLogo = (logo, x, y, maxW, maxH) => {
+            if (!logo) return false;
+            const ratio = logo.width / logo.height;
+            let w = maxW;
+            let h = w / ratio;
+            if (h > maxH) { h = maxH; w = h * ratio; }
+            try { doc.addImage(logo.data, 'PNG', x, y + (maxH - h) / 2, w, h); return true; }
+            catch (_) { return false; }
+          };
+
+          // Encabezado corporativo
+          doc.setFillColor(255, 255, 255);
+          doc.rect(0, 0, pageWidth, 43, 'F');
+          const zebraAdded = fitLogo(zebraLogo, 9, 7, 39, 17);
+          const intcomexAdded = fitLogo(intcomexLogo, pageWidth - 53, 7, 44, 17);
+          doc.setTextColor(25, 35, 45);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(17);
+          doc.text('COTIZACIÓN COMERCIAL', pageWidth / 2, 17, { align: 'center' });
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(90, 100, 110);
+          doc.text('ZEBRA TECHNOLOGIES  |  INTCOMEX', pageWidth / 2, 23, { align: 'center' });
+          if (!zebraAdded) { doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(20,20,20); doc.text('ZEBRA', 10, 13); }
+          if (!intcomexAdded) {
+            // Respaldo vectorial: evita depender de la carga externa del PNG y de permisos CORS.
+            const logoX = pageWidth - 54;
+            const logoY = 7;
+            doc.setFillColor(139, 35, 35);
+            doc.roundedRect(logoX, logoY, 14, 14, 2, 2, 'F');
+            doc.setFillColor(255, 255, 255);
+            doc.triangle(logoX + 1.5, logoY + 10.5, logoX + 6.5, logoY + 1.5, logoX + 6.5, logoY + 10.5, 'F');
+            doc.triangle(logoX + 7.5, logoY + 1.5, logoX + 12.5, logoY + 1.5, logoX + 7.5, logoY + 6.5, 'F');
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(15);
+            doc.setTextColor(29, 57, 101);
+            doc.text('INTCOMEX', logoX + 16, logoY + 11.5);
+          }
+          doc.setFillColor(0, 115, 230);
+          doc.roundedRect(9, 31, pageWidth - 18, 1.8, 0.8, 0.8, 'F');
+
+          // Datos de la cotización
+          doc.setTextColor(35, 45, 55);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8.5);
+          doc.text('PARTNER', 10, 42);
+          doc.text('CLIENTE FINAL', 105, 42);
+          doc.text('FECHA', pageWidth - 54, 42);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.text(String(partner), 10, 48, { maxWidth: 88 });
+          doc.text(String(customer), 105, 48, { maxWidth: 88 });
+          doc.text(new Date().toLocaleDateString('es-CO'), pageWidth - 54, 48);
+          doc.setFontSize(7.5);
+          doc.setTextColor(105, 115, 125);
+          doc.text(`Generado por: ${currentUser?.name || 'Usuario'}`, 10, 55);
+          doc.text(`Productos: ${validResults.length}`, pageWidth - 10, 55, { align: 'right' });
+
+          const tableData = validResults.map(r => {
+            const qty = Number(r.boxQty) > 1 ? Number(r.boxQty) : 1;
+            const unitDiscount = numericPrice(r.discountApplied) ?? 0;
+            const discountText = qty > 1
+              ? `Unitario: -${money(unitDiscount)}\nCaja x ${qty}: -${money(unitDiscount * qty)}`
+              : (unitDiscount > 0 ? `-${money(unitDiscount)}` : '$0.00');
+            return [
+              r.access?.allowed ? 'VENTA PERMITIDA' : (r.access?.msg || 'BLOQUEADO'),
+              r.sku || 'N/A',
+              r.description || r.error || 'Sin descripción',
+              r.source || 'No identificado',
+              qty > 1 ? `Caja x ${qty} unds` : 'Unidad',
+              boxPriceLabel(r.listPrice, qty),
+              boxPriceLabel(r.basePrice, qty),
+              discountText,
+              boxPriceLabel(r.finalPrice, qty)
+            ];
+          });
+
+          doc.autoTable({
+            startY: 61,
+            margin: { left: 9, right: 9, bottom: 15 },
+            head: [[
+              'Estado / alerta', 'SKU', 'Descripción del producto', 'Nivel / Especialización',
+              'Empaque', 'MSRP · List Price', 'Precio', 'Ahorro promo', 'Precio final (USD)'
+            ]],
+            body: tableData,
+            theme: 'grid',
+            tableWidth: 'auto',
+            styles: {
+              font: 'helvetica', fontSize: 7, cellPadding: 2.2,
+              overflow: 'linebreak', valign: 'middle', textColor: [45, 55, 65],
+              lineColor: [220, 226, 232], lineWidth: 0.15
+            },
+            headStyles: {
+              fillColor: [25, 35, 45], textColor: [255, 255, 255],
+              fontStyle: 'bold', fontSize: 7, halign: 'center', valign: 'middle'
+            },
+            alternateRowStyles: { fillColor: [245, 248, 251] },
+            columnStyles: {
+              0: { cellWidth: 25, halign: 'center', fontSize: 6.5 },
+              1: { cellWidth: 23, fontStyle: 'bold' },
+              2: { cellWidth: 51 },
+              3: { cellWidth: 36 },
+              4: { cellWidth: 20, halign: 'center' },
+              5: { cellWidth: 29, halign: 'right', fontSize: 6.4 },
+              6: { cellWidth: 20, halign: 'right' },
+              7: { cellWidth: 27, halign: 'right', fontSize: 6.4, textColor: [0, 125, 75] },
+              8: { cellWidth: 29, halign: 'right', fontStyle: 'bold', fontSize: 6.4 }
+            },
+            didParseCell: (data) => {
+              if (data.section === 'body' && data.column.index === 0) {
+                const permitted = String(data.cell.raw).toUpperCase().includes('PERMITIDA');
+                data.cell.styles.textColor = permitted ? [0, 125, 75] : [180, 45, 45];
+                data.cell.styles.fontStyle = 'bold';
+              }
+            },
+            didDrawPage: () => {
+              const currentPage = doc.internal.getNumberOfPages();
+              doc.setDrawColor(220, 226, 232);
+              doc.line(9, pageHeight - 10, pageWidth - 9, pageHeight - 10);
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(7);
+              doc.setTextColor(120, 130, 140);
+              doc.text('Documento generado por Zebra Price Desk · Uso interno', 9, pageHeight - 5);
+              doc.text(`Página ${currentPage}`, pageWidth - 9, pageHeight - 5, { align: 'right' });
+            }
+          });
+
+          doc.save(`Cotizacion_Zebra_${new Date().getTime()}.pdf`);
+
+        } catch (e) { console.error('Error al exportar PDF:',e); alert('Ocurrió un error al generar el PDF.'); }
+
+      };
+
+
+      const resultsExist = Boolean(searchResult) || bulkResults.length > 0;
+
+      const syncState = loadingDrive ? 'pending' : (syncStatus.startsWith('Cargado') ? 'ok' : (syncStatus.startsWith('Error') ? 'error' : 'pending'));
+
+
+
+      if (!currentUser) {
+
+        return (
+
+          <div className="login-screen">
+
+            <div className="login-card">
+
+              <div className="login-brand">
+
+                <div className="login-partner-logos">
+
+                  <div className="partner-logos" aria-label="Logos de Zebra e Intcomex">
+
+                    <div className="partner-logo-tile zebra-logo-tile" data-fallback="ZEBRA">
+
+                      <img src="https://aspimx.com/wp-content/uploads/2022/06/Zebra_Logo_K.png" alt="Zebra Technologies" loading="eager" decoding="async" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.classList.add('logo-unavailable'); }}/>
+
+                    </div>
+
+                    <span className="partner-logos-divider" aria-hidden="true">×</span>
+
+                    <div className="partner-logo-tile intcomex-logo-tile" data-fallback="INTCOMEX">
+
+                      <img src="https://sab2crepo.blob.core.windows.net/uicustom/deploy/img/Intcomex-Logo2024.png" alt="Intcomex" loading="eager" decoding="async" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.classList.add('logo-unavailable'); }}/>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <h1 className="login-title">PRICE <span>DESK</span></h1>
+
+                <p className="login-subtitle">Cotizador comercial Zebra · Intcomex</p>
+
+                <div className="internal-tag"><Icon name="shield" size={12}/> Solo para uso interno Intcomex</div>
+
+              </div>
+
+              <form className="login-form" onSubmit={handleLoginSubmit}>
+
+                <div className="field">
+
+                  <label className="field-label" htmlFor="login-username">Nombre de usuario autorizado</label>
+
+                  <input id="login-username" className="field-input" type="text" autoComplete="username" placeholder="Ej. nicolas.perea" value={loginUsername} onChange={e => setLoginUsername(e.target.value)} />
+
+                </div>
+
+                {loadingDrive && <div className="quick-note"><span className="spin"><Icon name="refresh"/></span><span>Conectando con las bases de datos de Google Sheets para validar el acceso...</span></div>}
+
+                {loginError && <div className="login-error"><Icon name="alert" size={17}/><span>{loginError}</span></div>}
+
+                <button className="primary-button login-submit" type="submit" disabled={loadingDrive}>
+
+                  {loadingDrive ? <><span className="spin"><Icon name="refresh"/></span> Sincronizando datos</> : <>Ingresar al cotizador</>}
+
+                </button>
+
+              </form>
+
+              <p className="login-help">El acceso se valida contra la lista de usuarios autorizados de Google Sheets.</p>
+
+              <p className="footer-note">Zebra Price Desk · Intcomex</p>
+
+              <p className="footer-note" style={{marginTop: 5}}>Creado por: Nicolás Perea</p>
+
+            </div>
+
+          </div>
+
+        );
+
+      }
+
+
+
+      return (
+
+        <div className="app-shell">
+
+          <div className="top-alert"><Icon name="shield" size={14}/> Solo para uso interno · Información comercial confidencial</div>
+
+          <div className="notice-bar">
+
+            <div className="notice-copy"><span className="notice-tag">Importante</span><span>Si cuentas con un Deal Registration (DR) o un Price Condition (PC), contacta con el equipo de Zebra.</span></div>
+
+            <a className="notice-link" href="mailto:nicolas.perea@intcomex.com,sebastian.serna@intcomex.com?subject=Consulta%20Deal%20Registration%20%2F%20Price%20Condition&body=Hola%20Equipo%20Zebra,%0A%0ATengo%20una%20consulta%20sobre%20un%20Deal%20Registration%20(DR)%20o%20Price%20Condition%20(PC).%0A%0ADetalles:%0A"><Icon name="mail" size={14}/> Contactar al equipo Zebra</a>
+
+          </div>
+
+
+
+          <header className="header">
+
+            <div className="header-inner">
+
+              <div className="brand">
+
+                <div className="partner-logos" aria-label="Logos de Zebra e Intcomex">
+
+                  <div className="partner-logo-tile zebra-logo-tile" data-fallback="ZEBRA">
+
+                    <img src="https://aspimx.com/wp-content/uploads/2022/06/Zebra_Logo_K.png" alt="Zebra Technologies" loading="eager" decoding="async" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.classList.add('logo-unavailable'); }}/>
+
+                  </div>
+
+                  <span className="partner-logos-divider" aria-hidden="true">×</span>
+
+                  <div className="partner-logo-tile intcomex-logo-tile" data-fallback="INTCOMEX">
+
+                    <img src="https://sab2crepo.blob.core.windows.net/uicustom/deploy/img/Intcomex-Logo2024.png" alt="Intcomex" loading="eager" decoding="async" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.classList.add('logo-unavailable'); }}/>
+
+                  </div>
+
+                </div>
+
+                <div className="brand-name-block"><h1 className="brand-title">PRICE <span>DESK</span></h1><p className="brand-subtitle">Cotizador comercial Zebra · Intcomex</p></div>
+
+              </div>
+
+              <div className="header-actions">
+
+                <div className="user-block">
+
+                  <div className="user-meta"><small>Bienvenido/a</small><strong>{currentUser.name}</strong></div>
+
+                  <div className="avatar">{currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}</div>
+
+                  <button className="logout-button" onClick={() => handleLogout('')} title="Cerrar sesión"><Icon name="logout" size={14}/> Cerrar sesión</button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </header>
+
+
+
+          <main className="page">
+
+            <div className="welcome-row">
+
+              <div>
+
+                <div className="eyebrow"><Icon name={activeModule === 'admin' ? 'shield' : 'sparkle'} size={13}/> {activeModule === 'admin' ? 'Administración de la herramienta' : 'Herramienta comercial'}</div>
+
+                <h2 className="page-title">{activeModule === 'admin' ? 'Admin Center' : 'Centro de cotizaciones'}</h2>
+
+                <p className="page-description">{activeModule === 'admin' ? 'Mide adopción, actividad comercial, promociones, descuentos y calidad de las consultas.' : 'Consulta precios, valida condiciones de venta y aplica promociones Zebra desde un solo lugar.'}</p>
+
+              </div>
+
+              <div className={`sync-pill ${syncState === 'ok' ? '' : syncState}`}>
+
+                <span>{syncState === 'ok' ? '●' : syncState === 'error' ? '!' : '◌'}</span>
+
+                {loadingDrive ? 'Sincronizando' : syncState === 'ok' ? 'Bases sincronizadas' : syncState === 'error' ? 'Revisar sincronización' : 'Conectando bases'}
+
+              </div>
+
+            </div>
+
+
+
+            {isAdminUser && (
+
+              <div className="module-nav" role="navigation" aria-label="Navegación de Price Desk">
+
+                <button type="button" className={`module-nav-button ${activeModule === 'quote' ? 'active' : ''}`} onClick={() => setActiveModule('quote')}><Icon name="calculator" size={15}/> Cotizador</button>
+
+                <button type="button" className={`module-nav-button ${activeModule === 'admin' ? 'active' : ''}`} onClick={() => setActiveModule('admin')}><Icon name="layout-dashboard" size={15}/> Admin Center</button>
+
+              </div>
+
+            )}
+
+
+
+            {activeModule === 'quote' && (
+
+              <div className="layout">
+
+                <section className="content-column">
+
+                  <section className="panel quote-panel">
+
+                    <div className="quote-panel-top">
+
+                      <p className="step-label">Configura tu consulta · Paso 1</p>
+
+                      <div className="segmented-row">
+
+                        <div className="segmented">
+
+                          <Tab active={inputMode === 'single'} onClick={() => { setInputMode('single'); setSkuError(false); }} label="Individual" icon="search"/>
+
+                          <Tab active={inputMode === 'bulk'} onClick={() => { setInputMode('bulk'); setSkuError(false); }} label="Masiva" icon="list"/>
+
+                        </div>
+
+                        <div className="segmented">
+
+                          <Tab active={partnerType === 'registered'} onClick={() => { setPartnerType('registered'); setRegionError(false); }} label="Partner registrado" icon="user"/>
+
+                          <Tab active={partnerType === 'new'} onClick={() => { setPartnerType('new'); setPartnerError(false); }} label="Partner nuevo" icon="users"/>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+
+
+                    <div className="form-body">
+
+                      <p className="step-label">Paso 2 · Información del partner</p>
+
+                      <div className="form-grid">
+
+                        {partnerType === 'registered' && (
+
+                          <>
+
+                            <div className="field" ref={partnerDropdownRef}>
+
+                              <label className="field-label" htmlFor="partner-name">Nombre del partner</label>
+
+                              <input id="partner-name" className={`field-input ${partnerError ? 'error' : ''}`} type="text" placeholder={partnerError ? 'Este campo es obligatorio' : 'Escribe para buscar un partner...'} value={partnerNameInput} onChange={e => { if (partnerError) setPartnerError(false); handlePartnerNameChange(e.target.value); }} onFocus={() => setShowPartnerDropdown(true)} autoComplete="off" />
+
+                              {partnerError && <p className="field-error"><Icon name="alert" size={12}/> Debes ingresar o seleccionar el nombre del partner.</p>}
+
+                              {showPartnerDropdown && filteredPartners.length > 0 && (
+
+                                <div className="dropdown">
+
+                                  {filteredPartners.map(p => (
+
+                                    <button type="button" key={`${p.id}-${p.name}`} className="dropdown-item" onClick={() => handleSelectPartner(p)}>
+
+                                      <span>{p.name}</span>
+
+                                      <span className="dropdown-id">ID: {p.id || 'N/A'}</span>
+
+                                    </button>
+
+                                  ))}
+
+                                </div>
+
+                              )}
+
+                            </div>
+
+                            <div className="field">
+
+                              <label className="field-label" htmlFor="partner-id">ID del Partner Program</label>
+
+                              <input id="partner-id" className={`field-input ${partnerError ? 'error' : ''}`} type="text" placeholder="Ej. 2807" value={partnerId} onChange={e => { if (partnerError) setPartnerError(false); handlePartnerIdChange(e.target.value); }} />
+
+                              {partnerError && <p className="field-error"><Icon name="alert" size={12}/> Ingresa o selecciona el ID del partner.</p>}
+
+                            </div>
+
+                            {partnerNameInput && (
+
+                              <div className="field full">
+
+                                <div className="partner-selected">
+
+                                  <span>Partner seleccionado: <strong>{partnerNameInput}</strong></span>
+
+                                  <span>ID {partnerId || '—'}</span>
+
+                                </div>
+
+                              </div>
+
+                            )}
+
+                          </>
+
+                        )}
+
+
+
+                        <div className="field full">
+                          <label className="field-label" htmlFor="client-name">Nombre del cliente final (opcional)</label>
+                          <input id="client-name" className="field-input" type="text" placeholder="Escribe el nombre del cliente al que va dirigida la cotización..." value={clientName} onChange={e => setClientName(e.target.value)} />
+                        </div>
+
+                        {partnerType === 'new' && (
+
+                          <>
+
+                            <div className="field">
+
+                              <label className="field-label" htmlFor="new-partner">Nombre del partner nuevo</label>
+
+                              <input id="new-partner" className="field-input" type="text" placeholder="Nombre de la empresa..." value={newPartnerName} onChange={e => setNewPartnerName(e.target.value)} />
+
+                              <p className="field-hint">Nivel asignado automáticamente: Registered Reseller.</p>
+
+                            </div>
+
+                            <div className="field">
+
+                              <label className="field-label" htmlFor="manual-region">Región / país de promoción · Obligatorio</label>
+
+                              <select id="manual-region" className={`field-select ${regionError ? 'error' : ''}`} value={manualRegion} onChange={e => { setManualRegion(e.target.value); if (regionError) setRegionError(false); }}>
+
+                                <option value="">-- Selecciona una región --</option>
+
+                                <option value="Colombia">Colombia</option>
+
+                                <option value="NOLA">NOLA</option>
+
+                                <option value="SOLA">SOLA</option>
+
+                              </select>
+
+                              {regionError && <p className="field-error"><Icon name="alert" size={12}/> Debes seleccionar una región antes de cotizar.</p>}
+
+                            </div>
+
+                          </>
+
+                        )}
+
+
+
+                        <div className="field full">
+
+                          <label className="field-label" htmlFor={inputMode === 'single' ? 'sku-single' : 'sku-bulk'}>{inputMode === 'single' ? 'Paso 3 · SKU del producto' : 'Paso 3 · Lista masiva de SKUs'}</label>
+
+                          {inputMode === 'single' ? (
+
+                            <input id="sku-single" className={`field-input sku ${skuError ? 'error' : ''}`} type="text" placeholder={skuError ? 'Ingresa el SKU del producto...' : 'Ej. MC3401-0G1D43SS-A6'} value={skuSearch} onChange={e => { if (skuError) setSkuError(false); setSkuSearch(e.target.value); }} onKeyDown={e => { if (e.key === 'Enter') handleCalculate(); }} />
+
+                          ) : (
+
+                            <textarea id="sku-bulk" className={`field-textarea ${skuError ? 'error' : ''}`} rows="4" placeholder={skuError ? 'Ingresa al menos un SKU por línea...' : 'SKU1\nSKU2\nSKU3'} value={bulkSkus} onChange={e => { if (skuError) setSkuError(false); setBulkSkus(e.target.value); }} />
+
+                          )}
+
+                          <p className="field-hint">{inputMode === 'single' ? 'Ingresa la referencia exacta del producto Zebra.' : 'Puedes pegar varios SKU separados por saltos de línea o comas.'}</p>
+
+                          {skuError && <p className="field-error"><Icon name="alert" size={12}/> {inputMode === 'single' ? 'Debes ingresar el SKU del producto.' : 'Debes ingresar al menos un SKU en la lista.'}</p>}
+
+                        </div>
+
+                      </div>
+
+                      <button className="primary-button" onClick={handleCalculate}>Procesar cotización</button>
+
+                    </div>
+
+                  </section>
+
+                  <div className="quick-note"><Icon name="shield" size={17}/><span><strong>Uso interno.</strong> Verifica siempre las condiciones comerciales y el estado de acceso antes de compartir una cotización con el partner.</span></div>
+
+                  {resultsExist && (
+                    <section className="panel export-toolbar">
+                      <div className="export-toolbar-copy">
+                        <h3 className="panel-title"><span className="panel-title-icon"><Icon name="lock" size={15}/></span> Exportar cotización</h3>
+                        <p className="export-note">Descarga el resultado de la consulta activa en un formato listo para compartir.</p>
+                      </div>
+                      <div className="export-grid">
+                        <button className="export-button" onClick={exportToPDF}><Icon name="printer" size={15}/> PDF</button>
+                        <button className="export-button" onClick={exportToExcel}><Icon name="file" size={15}/> Excel</button>
+                      </div>
+                    </section>
+                  )}
+
+                  {inputMode === 'single' && searchResult && (
+
+                    <section className="panel result-panel">
+
+                      <div className="result-topline">
+                        <div>
+                          <h3 className="result-heading">Resultado de cotización</h3>
+                          <span className="result-date">{new Date().toLocaleDateString('es-CO')}</span>
+                          {clientName.trim() && <span className="result-date" style={{display:'block', marginTop:5}}>Cliente final: <strong>{clientName.trim()}</strong></span>}
+                        </div>
+                      </div>
+
+                      {searchResult.error ? (
+
+                        <div className="error-card">
+
+                          <div className="error-message"><Icon name="alert" size={25}/><span>{searchResult.error}</span></div>
+
+                          <a className="error-mail" href={`mailto:nicolas.perea@intcomex.com,sebastian.serna@intcomex.com?subject=Consulta%20SKU%20no%20encontrado%20-%20${encodeURIComponent(searchResult.sku || '')}&body=Hola%20Equipo%20Zebra,%0A%0AEl%20SKU%20%22${encodeURIComponent(searchResult.sku || '')}%22%20no%20fue%20encontrado%20en%20el%20Cotizador%20Zebra%20Price%20Desk.%0A%0AUn%20saludo.`}><Icon name="mail" size={14}/> Contactar al equipo Zebra</a>
+
+                        </div>
+
+                      ) : (
+
+                        <>
+
+                          <div className="result-main">
+
+                            <div className="result-product">
+
+                              <div className="badge-row">
+
+                                <span className="status-badge">Access Code: {searchResult.rawAccessCode}</span>
+
+                                <span className={`status-badge ${searchResult.access?.allowed ? 'success' : 'danger'}`}>
+
+                                  {searchResult.access?.allowed ? <><Icon name="check" size={11}/> Venta permitida</> : <><Icon name="alert" size={11}/>{searchResult.access?.msg}</>}
+
+                                </span>
+
+                                {searchResult.boxQty > 1 && (
+
+                                  <span className="status-badge" style={{ color: '#92400e', background: '#fef3c7', borderColor: '#fde68a' }}>
+
+                                    <Icon name="package-x" size={11}/> Se vende en caja x {searchResult.boxQty} unds
+
+                                  </span>
+
+                                )}
+
+                              </div>
+
+                              <h2 className="result-sku">{searchResult.sku}</h2>
+
+                              <p className="result-description">{searchResult.description}</p>
+
+                            </div>
+
+                            <div className="price-card">
+
+                              <div className="price-label">Precio final FOB Miami {searchResult.boxQty > 1 ? '(Unitario)' : ''}</div>
+
+                              {Number(searchResult.discountApplied) > 0 && searchResult.promoCode !== 'Sin Promo' && (
+
+                                <div className="price-deal-details">
+
+                                  <div className="price-original"><span className="price-original-label">Antes</span><s className="price-original-value">${(Number(searchResult.basePrice) || 0).toFixed(2)} USD</s></div>
+
+                                  <span className="price-saving-badge">Ahorras ${(Number(searchResult.discountApplied) || 0).toFixed(2)} USD</span>
+
+                                </div>
+
+                              )}
+
+                              <div className="price-value">${(Number(searchResult.finalPrice) || 0).toFixed(2)} <span>USD</span></div>
+
+                              
+
+                              {searchResult.boxQty > 1 && (
+
+                                <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.15)' }}>
+
+                                  <div className="price-label" style={{ color: '#A5E6B4' }}>TOTAL CAJA CERRADA</div>
+
+                                  <div className="price-value" style={{ fontSize: 'clamp(22px, 2.8vw, 30px)' }}>
+
+                                    ${(Number(searchResult.boxTotal) || 0).toFixed(2)} <span>USD</span>
+
+                                  </div>
+
+                                </div>
+
+                              )}
+
+
+
+                              <div className="price-final-caption">{Number(searchResult.discountApplied) > 0 && searchResult.promoCode !== 'Sin Promo' ? 'Precio con promoción aplicada' : 'Precio vigente'}</div>
+
+                            </div>
+
+                          </div>
+
+                          <div className="metric-grid">
+
+                            <MetricCard label="MSRP · List Price" value={searchResult.listPrice === 'N/A' ? 'N/A' : `$${searchResult.listPrice.toString().replace(/^\$/, '')}`}/>
+
+                            <MetricCard label="Nivel detectado" value={searchResult.partnerLevel}/>
+
+                            <MetricCard label="País / Región" value={`${searchResult.country} (${searchResult.region})`}/>
+
+                            <MetricCard label="Partner" value={searchResult.partnerName}/>
+
+                          </div>
+
+                        </>
+
+                      )}
+
+                    </section>
+
+                  )}
+
+
+
+                  {inputMode === 'bulk' && bulkResults.length > 0 && (
+
+                    <section className="panel result-panel">
+
+                      <div className="result-topline">
+
+                        <div>
+                          <h3 className="result-heading">Reporte masivo</h3>
+                          <span className="result-date">{bulkResults.length} SKU procesado(s) · Validado con promociones</span>
+                          <span className="result-date" style={{display:'block', marginTop:5}}>Partner: <strong>{bulkResults[0]?.partnerName || (partnerType === 'new' ? newPartnerName : partnerNameInput) || 'No identificado'}</strong></span>
+                          {clientName.trim() && <span className="result-date" style={{display:'block', marginTop:5}}>Cliente final: <strong>{clientName.trim()}</strong></span>}
+                        </div>
+
+                        <span className="sync-pill">{bulkResults.filter(r => r.access?.allowed).length} permitidos</span>
+
+                      </div>
+
+                      <div className="table-wrap">
+
+                        <table className="results-table">
+
+                          <thead>
+
+                            <tr>
+
+                              <th>Estado / alerta</th>
+
+                              <th>SKU</th>
+
+                              <th>Descripción del producto</th>
+
+                              <th>Nivel / Especialización</th>
+
+                              <th className="text-center">Empaque</th>
+
+                              <th className="text-right">MSRP · List Price</th>
+
+                              <th className="text-right">Precio unitario</th>
+
+                              <th className="text-right">Ahorro unitario</th>
+
+                              <th className="text-right">Precio final caja (USD)</th>
+
+                            </tr>
+
+                          </thead>
+
+                          <tbody>
+
+                            {bulkResults.map((res, i) => (
+
+                              <tr key={`${res.sku}-${i}`} className={!res.access?.allowed ? 'row-error' : ''}>
+
+                                <td><span className={`status-badge ${res.access?.allowed ? 'success' : 'danger'}`}>{res.access?.allowed ? 'Venta permitida' : (res.access?.msg || 'No disponible')}</span></td>
+
+                                <td className="sku-cell">{res.sku}<span className="sub-cell">Code: {res.rawAccessCode || 'N/A'}</span>{res.error && <span className="sub-cell">{res.error}</span>}</td>
+
+                                <td className="product-description-cell">{res.description || 'Descripción no disponible'}</td>
+
+                                <td className="source-cell">{res.source || 'No identificado'}</td>
+
+                                <td className="text-center package-cell">
+
+                                  {res.boxQty > 1 ? <span className="package-badge">Caja x {res.boxQty} unds</span> : <span className="package-unit">Unidad</span>}
+
+                                </td>
+
+
+
+                                <td className="text-right">
+                                  {res.listPrice === 'N/A' || res.listPrice == null ? 'N/A' : (Number(res.boxQty) > 1 ? (
+                                    <><span style={{fontWeight: 800, color: '#111827'}}>Unitario: ${Number(String(res.listPrice).replace(/^\$/, '')).toFixed(2)}</span><span className="sub-cell">Caja x {res.boxQty}: ${(Number(String(res.listPrice).replace(/^\$/, '')) * Number(res.boxQty)).toFixed(2)}</span></>
+                                  ) : <span style={{fontWeight: 800, color: '#111827'}}>${Number(String(res.listPrice).replace(/^\$/, '')).toFixed(2)}</span>)}
+                                </td>
+
+                                <td className="text-right">
+                                  {res.basePrice == null ? '—' : (Number(res.boxQty) > 1 ? (
+                                    <><span className="table-old-value">Unitario: ${(Number(res.basePrice) || 0).toFixed(2)}</span><span className="sub-cell">Caja x {res.boxQty}: ${((Number(res.basePrice) || 0) * Number(res.boxQty)).toFixed(2)}</span></>
+                                  ) : <span className="table-old-value">${(Number(res.basePrice) || 0).toFixed(2)}</span>)}
+                                </td>
+
+                                <td className="text-right">
+                                  {Number(res.discountApplied) > 0 ? (Number(res.boxQty) > 1 ? (
+                                    <><span className="table-saving-value">Unitario: −${Number(res.discountApplied).toFixed(2)}</span><span className="sub-cell">Caja x {res.boxQty}: −${(Number(res.discountApplied) * Number(res.boxQty)).toFixed(2)}</span></>
+                                  ) : <span className="table-saving-value">−${Number(res.discountApplied).toFixed(2)}</span>) : '—'}
+                                </td>
+
+                                <td className="text-right">
+                                  <span className="table-final-value">{res.finalPrice == null ? '—' : (Number(res.boxQty) > 1 ? (
+                                    <><span>Unitario: ${(Number(res.finalPrice) || 0).toFixed(2)}</span><span className="sub-cell">Caja x {res.boxQty}: ${(Number(res.boxTotal ?? (Number(res.finalPrice) * Number(res.boxQty))) || 0).toFixed(2)}</span></>
+                                  ) : `$${(Number(res.finalPrice) || 0).toFixed(2)}`)}</span>
+                                </td>
+
+                              </tr>
+
+                            ))}
+
+                          </tbody>
+
+                        </table>
+
+                      </div>
+
+                    </section>
+
+                  )}
+
+
+
+                  {!searchResult && bulkResults.length === 0 && (
+
+                    <div className="empty-state">
+
+                      <div className="empty-icon"><Icon name="layers" size={18}/></div>
+
+                      <span>Cuando proceses una cotización, el resultado aparecerá aquí con el precio final, la promoción aplicada y la validación de acceso.</span>
+
+                    </div>
+
+                  )}
+
+                </section>
+
+              </div>
+
+            )}
+
+
+
+            {activeModule === 'admin' && isAdminUser && (
+
+              <div className="admin-center">
+
+                <div className="admin-subnav" role="tablist" aria-label="Secciones de administración">
+
+                  <button type="button" role="tab" aria-selected={adminSection === 'dashboard'} className={adminSection === 'dashboard' ? 'active' : ''} onClick={() => setAdminSection('dashboard')}><Icon name="layout-dashboard" size={14}/> Dashboard</button>
+
+                  <button type="button" role="tab" aria-selected={adminSection === 'promotions'} className={adminSection === 'promotions' ? 'active' : ''} onClick={() => setAdminSection('promotions')}><Icon name="tag" size={14}/> Gestión de promociones</button>
+
+                </div>
+
+                {adminSection === 'dashboard' && (
+
+                <>
+
+                <section className="admin-hero panel">
+
+                  <div className="admin-hero-copy">
+
+                    <div className="eyebrow"><Icon name="layout-dashboard" size={13}/> Inteligencia comercial · Analítica de uso</div>
+
+                    <h3>Dashboard de gestión comercial</h3>
+
+                    <p>Entiende cómo se utiliza Zebra Price Desk, qué productos y partners concentran las consultas, qué promociones generan movimiento y dónde aparecen restricciones o faltantes de precio.</p>
+
+                  </div>
+
+                  <div className="admin-hero-actions">
+
+                    <button className="secondary-button" onClick={refreshAnalytics} disabled={analyticsLoading}><Icon name="refresh" size={14}/> {analyticsLoading ? 'Actualizando...' : 'Actualizar dashboard'}</button>
+
+                    <button className="primary-button admin-export-button" onClick={exportAnalytics} disabled={!filteredAnalytics.length}><Icon name="file" size={14}/> Exportar Excel</button>
+
+                  </div>
+
+                </section>
+
+
+
+                <section className={`admin-source-note ${ANALYTICS_API_URL ? '' : 'local'}`}>
+
+                  <Icon name={ANALYTICS_API_URL ? 'database' : 'info'} size={16}/>
+
+                  <span><strong>{ANALYTICS_API_URL ? 'Registro central habilitado.' : 'Modo local de analítica.'}</strong> {analyticsMessage || (ANALYTICS_API_URL ? 'Los eventos se consolidan desde el registro compartido.' : 'Los datos se guardan en este navegador. Para consolidar actividad de todo el equipo, implementa el Apps Script incluido y pega su URL en ANALYTICS_API_URL.')}</span>
+
+                </section>
+
+
+
+                <div className="admin-controls">
+
+                  <div><div className="panel-title"><span className="panel-title-icon"><Icon name="calendar" size={15}/></span> Periodo de análisis</div></div>
+
+                  <select className="admin-filter" value={analyticsPeriod} onChange={e => setAnalyticsPeriod(e.target.value)}>
+
+                    <option value="7">Últimos 7 días</option>
+
+                    <option value="30">Últimos 30 días</option>
+
+                    <option value="90">Últimos 90 días</option>
+
+                    <option value="all">Histórico completo</option>
+
+                  </select>
+
+                </div>
+
+
+
+                <div className="admin-stat-grid">
+
+                  <div className="admin-stat panel"><span className="admin-stat-icon"><Icon name="file" size={17}/></span><div className="admin-stat-value">{analyticsSummary.quotes.toLocaleString('es-CO')}</div><div className="admin-stat-label">Cotizaciones generadas</div></div>
+
+                  <div className="admin-stat panel"><span className="admin-stat-icon"><Icon name="search" size={17}/></span><div className="admin-stat-value">{analyticsSummary.skuQueries.toLocaleString('es-CO')}</div><div className="admin-stat-label">SKUs consultados</div></div>
+
+                  <div className="admin-stat panel"><span className="admin-stat-icon"><Icon name="users" size={17}/></span><div className="admin-stat-value">{analyticsSummary.partners.toLocaleString('es-CO')}</div><div className="admin-stat-label">Partners cotizados</div></div>
+
+                  <div className="admin-stat panel"><span className="admin-stat-icon"><Icon name="tag" size={17}/></span><div className="admin-stat-value">{analyticsSummary.promoUses.toLocaleString('es-CO')}</div><div className="admin-stat-label">Promociones utilizadas</div></div>
+
+                  <div className="admin-stat panel"><span className="admin-stat-icon"><Icon name="dollar-sign" size={17}/></span><div className="admin-stat-value" style={{fontSize:19}}>{formatMoney(analyticsSummary.discounts)}</div><div className="admin-stat-label">Descuentos otorgados · USD</div></div>
+
+                  <div className="admin-stat panel"><span className="admin-stat-icon danger"><Icon name="shield-alert" size={17}/></span><div className="admin-stat-value">{analyticsSummary.blocked.toLocaleString('es-CO')}</div><div className="admin-stat-label">Consultas bloqueadas por acceso</div></div>
+
+                  <div className="admin-stat panel"><span className="admin-stat-icon warning"><Icon name="package-x" size={17}/></span><div className="admin-stat-value">{analyticsSummary.noPrice.toLocaleString('es-CO')}</div><div className="admin-stat-label">SKUs únicos sin precio asignable</div></div>
+
+                  <div className="admin-stat panel"><span className="admin-stat-icon"><Icon name="user-check" size={17}/></span><div className="admin-stat-value">{analyticsSummary.users.toLocaleString('es-CO')}</div><div className="admin-stat-label">Usuarios con actividad</div></div>
+
+                </div>
+
+
+
+                <div className="admin-grid-two">
+
+                  <section className="panel admin-panel">
+
+                    <div className="admin-panel-heading"><div><h3 className="panel-title"><span className="panel-title-icon"><Icon name="trending-up" size={15}/></span> SKUs más consultados</h3><p className="admin-panel-subtitle">Productos con mayor interés en el periodo</p></div></div>
+
+                    {analyticsSummary.topSkus.length ? <div className="table-wrap admin-table-wrap"><table className="admin-table"><thead><tr><th>SKU</th><th className="text-right">Consultas</th></tr></thead><tbody>{analyticsSummary.topSkus.map(row => <tr key={row.name}><td className="primary-cell">{row.name}</td><td className="text-right">{row.count}</td></tr>)}</tbody></table></div> : <div className="admin-empty"><Icon name="bar-chart" size={20}/> Aún no hay consultas registradas para este periodo.</div>}
+
+                  </section>
+
+                  <section className="panel admin-panel">
+
+                    <div className="admin-panel-heading"><div><h3 className="panel-title"><span className="panel-title-icon"><Icon name="building-2" size={15}/></span> Partners más cotizados</h3><p className="admin-panel-subtitle">Actividad comercial por partner</p></div></div>
+
+                    {analyticsSummary.topPartners.length ? <div className="table-wrap admin-table-wrap"><table className="admin-table"><thead><tr><th>Partner</th><th className="text-right">Cotizaciones</th></tr></thead><tbody>{analyticsSummary.topPartners.map(row => <tr key={row.name}><td className="primary-cell">{row.name}</td><td className="text-right">{row.count}</td></tr>)}</tbody></table></div> : <div className="admin-empty"><Icon name="users" size={20}/> Aún no hay partners cotizados registrados.</div>}
+
+                  </section>
+
+                  <section className="panel admin-panel">
+
+                    <div className="admin-panel-heading"><div><h3 className="panel-title"><span className="panel-title-icon"><Icon name="tag" size={15}/></span> Promociones con más movimiento</h3><p className="admin-panel-subtitle">Cantidad de SKU cotizados con cada incentivo</p></div></div>
+
+                    {analyticsSummary.topPromos.length ? <div className="table-wrap admin-table-wrap"><table className="admin-table"><thead><tr><th>Promoción</th><th className="text-right">Usos</th></tr></thead><tbody>{analyticsSummary.topPromos.map(row => <tr key={row.name}><td className="primary-cell">{row.name}</td><td className="text-right">{row.count}</td></tr>)}</tbody></table></div> : <div className="admin-empty"><Icon name="tag" size={20}/> Todavía no se han registrado promociones utilizadas.</div>}
+
+                  </section>
+
+                  <section className="panel admin-panel">
+
+                    <div className="admin-panel-heading"><div><h3 className="panel-title"><span className="panel-title-icon"><Icon name="users" size={15}/></span> Actividad por usuario</h3><p className="admin-panel-subtitle">Cotizaciones generadas por cada integrante</p></div></div>
+
+                    {analyticsSummary.activity.length ? <div className="table-wrap admin-table-wrap"><table className="admin-table"><thead><tr><th>Usuario</th><th className="text-right">Cotizaciones</th></tr></thead><tbody>{analyticsSummary.activity.map(row => <tr key={row.name}><td className="primary-cell">{row.name}</td><td className="text-right">{row.count}</td></tr>)}</tbody></table></div> : <div className="admin-empty"><Icon name="user" size={20}/> Aún no hay actividad de usuarios registrada.</div>}
+
+                  </section>
+
+                  <section className="panel admin-panel">
+
+                    <div className="admin-panel-heading"><div><h3 className="panel-title"><span className="panel-title-icon"><Icon name="package-x" size={15}/></span> SKUs sin precio asignable</h3><p className="admin-panel-subtitle">Referencias encontradas sin precio aplicable en las bases</p></div></div>
+
+                    {analyticsSummary.noPriceRows.length ? <div className="table-wrap admin-table-wrap"><table className="admin-table"><thead><tr><th>SKU</th><th className="text-right">Intentos</th></tr></thead><tbody>{analyticsSummary.noPriceRows.map(row => <tr key={row.name}><td className="primary-cell">{row.name}</td><td className="text-right">{row.count}</td></tr>)}</tbody></table></div> : <div className="admin-empty"><Icon name="check-circle" size={20}/> No hay SKUs sin precio asignable en este periodo.</div>}
+
+                  </section>
+
+                  <section className="panel admin-panel">
+
+                    <div className="admin-panel-heading"><div><h3 className="panel-title"><span className="panel-title-icon"><Icon name="shield-alert" size={15}/></span> Motivos de consulta bloqueada</h3><p className="admin-panel-subtitle">Restricciones de acceso detectadas durante las cotizaciones</p></div></div>
+
+                    {analyticsSummary.blockedRows.length ? <div className="table-wrap admin-table-wrap"><table className="admin-table"><thead><tr><th>Motivo</th><th className="text-right">Eventos</th></tr></thead><tbody>{analyticsSummary.blockedRows.map(row => <tr key={row.name}><td>{row.name}</td><td className="text-right">{row.count}</td></tr>)}</tbody></table></div> : <div className="admin-empty"><Icon name="check-circle" size={20}/> No se han registrado restricciones de acceso en este periodo.</div>}
+
+                  </section>
+
+                </div>
+
+
+
+                <section className="panel admin-panel">
+
+                  <div className="admin-panel-heading"><div><h3 className="panel-title"><span className="panel-title-icon"><Icon name="database" size={15}/></span> Alcance y calidad de la medición</h3><p className="admin-panel-subtitle">Los eventos se generan al procesar una cotización individual o masiva.</p></div></div>
+
+                  <div className="admin-method-grid">
+
+                    <div><strong>Cotizaciones y SKUs</strong><p>Una cotización cuenta cada procesamiento; cada referencia procesada se registra como un SKU consultado.</p></div>
+
+                    <div><strong>Descuentos y promociones</strong><p>Se suman los descuentos calculados por el motor actual y se contabilizan los códigos promocionales realmente aplicados.</p></div>
+
+                    <div><strong>Restricciones y faltantes</strong><p>Se separan los bloqueos por reglas de acceso, los SKU encontrados sin precio y los SKU que no aparecen en las bases.</p></div>
+
+                  </div>
+
+                  <p className="admin-security-note"><Icon name="lock" size={13}/> El dashboard es visible únicamente cuando el rol del usuario está marcado como ‘Administrador’ en la columna D de la hoja de usuarios.</p>
+
+                </section>
+
+                </>
+
+                )}
+
+                {adminSection === 'promotions' && (
+
+                  <>
+
+                    <section className="admin-hero panel">
+
+                      <div className="admin-hero-copy">
+
+                        <div className="eyebrow"><Icon name="tag" size={13}/> Administración comercial · Zebra</div>
+
+                        <h3>Gestión de promociones</h3>
+
+                        <p>Administra las reglas promocionales desde Zebra Price Desk. Los cambios se validan y guardan en la matriz oficial de Google Sheets.</p>
+
+                      </div>
+
+                      <div className="admin-hero-actions">
+
+                        <button className="secondary-button" onClick={syncDataFromDrive} disabled={loadingDrive}><Icon name="refresh" size={14}/> {loadingDrive ? 'Sincronizando...' : 'Actualizar promociones'}</button>
+
+                      </div>
+
+                    </section>
+
+                    {!promoAdminUnlocked ? (
+
+                      <section className="panel admin-panel promo-crud-card">
+
+                        <div className="admin-panel-heading"><div><h3 className="panel-title">Acceso de administración</h3><p className="admin-panel-subtitle">Ingresa la clave administrativa para gestionar las reglas promocionales.</p></div></div>
+
+                        <div className="promo-crud-access">
+
+                          <input className="promo-filter-input" type="password" autoComplete="current-password" aria-label="Clave administrativa" value={promoAdminKey} onChange={e => setPromoAdminKey(e.target.value)} onKeyDown={e => {if(e.key === 'Enter') unlockPromotionAdmin();}} placeholder="Escribe aquí la clave administrativa"/>
+
+                          <button type="button" className="primary-button" onClick={unlockPromotionAdmin} disabled={promoCrudLoading}>{promoCrudLoading ? 'Verificando...' : 'Desbloquear gestión'}</button>
+
+                        </div>
+
+                        {promoCrudMessage && <p className={'promo-crud-message ' + (promoCrudError ? 'error' : '')}>{promoCrudMessage}</p>}
+
+                      </section>
+
+                    ) : (
+
+                      <section className="panel admin-panel promo-crud-card">
+
+                        <div className="admin-panel-heading">
+
+                          <div><h3 className="panel-title">{promoEditingId ? 'Editar promoción' : 'Crear promoción'}</h3><p className="admin-panel-subtitle">Los cambios se guardan directamente en la hoja oficial. La clave permanece solo en memoria.</p></div>
+
+                          <button type="button" className="secondary-button" onClick={() => {setPromoAdminUnlocked(false);setPromoAdminKey('');resetPromotionForm();setPromoCrudMessage('Sesión administrativa cerrada.');}}>Bloquear gestión</button>
+
+                        </div>
+
+                        <form className="promo-crud-grid" onSubmit={savePromotion}>
+
+                          <label>Código de promoción<input className="promo-filter-input" value={promoForm.codigo} onChange={e=>setPromoForm(v=>({...v,codigo:e.target.value}))} required placeholder="Ej. ZD220T3HWA26"/></label>
+
+                          <label>Regiones (separadas por coma)<input className="promo-filter-input" value={promoForm.region} onChange={e=>setPromoForm(v=>({...v,region:e.target.value.toUpperCase()}))} required placeholder="COLOMBIA, NOLA"/></label>
+
+                          <label>Tipo de coincidencia<select className="promo-filter-input" value={promoForm.tipoCoincidencia} onChange={e=>setPromoForm(v=>({...v,tipoCoincidencia:e.target.value}))}><option value="EXACTO">SKU exacto</option><option value="PREFIJO">Prefijo</option></select></label>
+
+                          <label className="promo-crud-wide">SKU o patrón <span style={{fontWeight:500,color:'#7B8794'}}>Puedes ingresar varios, separados por comas</span><textarea className="promo-filter-input" rows="3" value={promoForm.patronSKU} onChange={e=>setPromoForm(v=>({...v,patronSKU:e.target.value}))} required placeholder={'SKU1, SKU2, SKU3'} /></label>
+
+                          <label>Tipo de descuento<select className="promo-filter-input" value={promoForm.tipoDescuento} onChange={e=>setPromoForm(v=>({...v,tipoDescuento:e.target.value}))}><option value="FIJO">Valor fijo (USD)</option><option value="PORCENTAJE">Porcentaje</option></select></label>
+
+                          <label>Valor del descuento<input className="promo-filter-input" type="number" min="0.01" step="0.01" value={promoForm.valorDescuento} onChange={e=>setPromoForm(v=>({...v,valorDescuento:e.target.value}))} required placeholder={promoForm.tipoDescuento==='PORCENTAJE'?'Ej. 3':'Ej. 15'}/></label>
+
+                          <label>Fecha de inicio<input className="promo-filter-input" type="date" value={promoForm.fechaInicio} onChange={e=>setPromoForm(v=>({...v,fechaInicio:e.target.value}))}/></label>
+
+                          <label>Fecha de fin<input className="promo-filter-input" type="date" value={promoForm.fechaFin} onChange={e=>setPromoForm(v=>({...v,fechaFin:e.target.value}))}/></label>
+
+                          <label className="promo-crud-check"><input type="checkbox" checked={promoForm.activa} onChange={e=>setPromoForm(v=>({...v,activa:e.target.checked}))}/> Promoción activa</label>
+
+                          <label className="promo-crud-check"><input type="checkbox" checked={promoForm.excluirDNP} onChange={e=>setPromoForm(v=>({...v,excluirDNP:e.target.checked}))}/> Excluir SKU incluido en DNP</label>
+
+                          <label className="promo-crud-wide">Observaciones<textarea className="promo-filter-input" rows="2" value={promoForm.observaciones} onChange={e=>setPromoForm(v=>({...v,observaciones:e.target.value}))} placeholder="Condiciones o notas internas"/></label>
+
+                          <div className="promo-crud-actions promo-crud-wide">
+
+                            <button type="submit" className="primary-button" disabled={promoCrudLoading}>{promoCrudLoading ? 'Guardando...' : promoEditingId ? 'Guardar cambios' : 'Crear promoción'}</button>
+
+                            {promoEditingId && <button type="button" className="secondary-button" onClick={resetPromotionForm} disabled={promoCrudLoading}>Cancelar edición</button>}
+
+                          </div>
+
+                        </form>
+
+                        {promoCrudMessage && <p className={'promo-crud-message ' + (promoCrudError ? 'error' : '')}>{promoCrudMessage}</p>}
+
+                      </section>
+
+                    )}
+
+                    <div className="promo-summary-grid">
+
+                      <section className="panel promo-summary-card"><div className="admin-stat-label">Reglas cargadas</div><div className="promo-summary-value">{promotionCounts.total}</div><div className="admin-stat-label">Desde la matriz de Google Sheets</div></section>
+
+                      <section className="panel promo-summary-card"><div className="admin-stat-label">Promociones activas</div><div className="promo-summary-value">{promotionCounts.active}</div><div className="admin-stat-label">Dentro de su periodo de vigencia</div></section>
+
+                      <section className="panel promo-summary-card"><div className="admin-stat-label">No activas / fuera de vigencia</div><div className="promo-summary-value">{promotionCounts.inactive}</div><div className="admin-stat-label">Inactivas, programadas o vencidas</div></section>
+
+                    </div>
+
+                    <section className="panel admin-panel">
+
+                      <div className="admin-panel-heading">
+
+                        <div><h3 className="panel-title"><span className="panel-title-icon"><Icon name="filter" size={15}/></span> Buscar y filtrar reglas</h3><p className="admin-panel-subtitle">Busca por código, SKU, prefijo, región u observación</p></div>
+
+                        <span className="sync-pill">{filteredPromotionRows.length} de {promotionRows.length}</span>
+
+                      </div>
+
+                      <div className="promo-filter-row">
+
+                        <input className="promo-filter-input" value={promotionSearch} onChange={e => setPromotionSearch(e.target.value)} placeholder="Buscar código o SKU..."/>
+
+                        <select className="promo-filter-input" value={promotionRegionFilter} onChange={e => setPromotionRegionFilter(e.target.value)}>
+
+                          <option value="TODAS">Todas las regiones</option><option value="COLOMBIA">Colombia</option><option value="SOLA">SOLA</option><option value="NOLA">NOLA</option>
+
+                        </select>
+
+                        <select className="promo-filter-input" value={promotionStatusFilter} onChange={e => setPromotionStatusFilter(e.target.value)}>
+
+                          <option value="TODAS">Todos los estados</option><option value="ACTIVA">Activas</option><option value="INACTIVA">Inactivas</option><option value="PROGRAMADA">Programadas</option><option value="VENCIDA">Vencidas</option>
+
+                        </select>
+
+                      </div>
+
+                      <div className="table-wrap admin-table-wrap" style={{marginTop:14}}>
+
+                        <table className="admin-table promo-table">
+
+                          <thead><tr><th>Código</th><th>Región</th><th>Coincidencia</th><th>SKU / prefijo</th><th>Descuento</th><th>Vigencia</th><th>Estado</th><th>Condiciones</th>{promoAdminUnlocked && <th>Acciones</th>}</tr></thead>
+
+                          <tbody>
+
+                            {filteredPromotionRows.map(row => (
+
+                              <tr key={row.id}>
+
+                                <td className="promo-code">{row.code}</td><td>{row.region}</td><td>{row.matchType}</td><td className="primary-cell">{row.pattern}</td>
+
+                                <td>{row.discountValue === null ? '—' : row.discountType === 'PORCENTAJE' ? row.discountValue + '%' : '$' + row.discountValue.toFixed(2) + ' USD'}</td>
+
+                                <td>{row.startDate || row.endDate ? (row.startDate ? row.startDate.toLocaleDateString('es-CO') : 'Sin inicio') + ' – ' + (row.endDate ? row.endDate.toLocaleDateString('es-CO') : 'Sin fin') : 'Sin fechas definidas'}</td>
+
+                                <td><span className={'promo-status ' + (row.status === 'Activa' ? 'active' : row.status === 'Programada' ? 'scheduled' : row.status === 'Vencida' ? 'expired' : 'inactive')}>{row.status}</span></td>
+
+                                <td>{row.excludeDnp ? 'Excluye DNP' : '—'}{row.notes && <span className="promo-observation" title={row.notes}>{row.notes}</span>}</td>{promoAdminUnlocked && <td><div className="promo-row-actions"><button type="button" className="promo-crud-action" onClick={()=>editPromotion(row)} disabled={promoCrudLoading}>Editar</button><button type="button" className="promo-crud-action" onClick={()=>togglePromotion(row)} disabled={promoCrudLoading}>{row.enabled ? 'Desactivar' : 'Activar'}</button><button type="button" className="promo-crud-action danger" onClick={()=>deletePromotion(row)} disabled={promoCrudLoading}>Eliminar</button></div></td>}
+
+                              </tr>
+
+                            ))}
+
+                            {!filteredPromotionRows.length && <tr><td colSpan={promoAdminUnlocked ? 9 : 8}><div className="admin-empty"><Icon name="search" size={18}/> No hay promociones que coincidan con los filtros seleccionados.</div></td></tr>}
+
+                          </tbody>
+
+                        </table>
+
+                      </div>
+
+                      <p className="admin-security-note"><Icon name="shield" size={13}/> Los cambios administrativos requieren la clave privada de Apps Script. La consulta y el motor de precios conservan su funcionamiento actual.</p>
+
+                    </section>
+
+                  </>
+
+                )}
+
+              </div>
+
+            )}
+
+            <p className="footer-note">Zebra Price Desk · Intcomex · Uso interno</p>
+
+            <p className="footer-note" style={{marginTop: 5}}>Creado por: Nicolás Perea</p>
+
+          </main>
+
+        </div>
+
+      );
+
+    };
+
+
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+
+    root.render(<ErrorBoundary><App /></ErrorBoundary>);
+
+  </script>
+
+</body>
+
+</html>
