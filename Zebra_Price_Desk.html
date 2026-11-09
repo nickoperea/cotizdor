@@ -3443,7 +3443,7 @@
             margin: { left: 9, right: 9, bottom: 15 },
             head: [[
               'Estado / alerta', 'SKU', 'Descripción del producto', 'Nivel / Especialización',
-              'Empaque', 'MSRP · List Price', 'Precio', 'Ahorro promo', 'Precio final (USD)'
+              'Empaque', 'MSRP · List Price', 'Precio', 'Ahorro promo', 'Precio FOB Miami (USD)'
             ]],
             body: tableData,
             theme: 'grid',
@@ -3992,7 +3992,7 @@
 
                             <div className="price-card">
 
-                              <div className="price-label">Precio final FOB Miami {searchResult.boxQty > 1 ? '(Unitario)' : ''}</div>
+                              <div className="price-label">Precio FOB Miami (USD) {searchResult.boxQty > 1 ? '(Unitario)' : ''}</div>
 
                               {Number(searchResult.discountApplied) > 0 && searchResult.promoCode !== 'Sin Promo' && (
 
@@ -4115,11 +4115,11 @@
 
                               <th className="text-right">MSRP · List Price</th>
 
-                              <th className="text-right">Precio unitario</th>
+                              <th className="text-right">Precio FOB Miami unitario (USD)</th>
 
                               <th className="text-right">Ahorro unitario</th>
 
-                              <th className="text-right">Precio final caja (USD)</th>
+                              <th className="text-right">Precio FOB Miami caja (USD)</th>
 
                             </tr>
 
@@ -4210,7 +4210,7 @@
 
                       <div className="empty-icon"><Icon name="layers" size={18}/></div>
 
-                      <span>Cuando proceses una cotización, el resultado aparecerá aquí con el precio final, la promoción aplicada y la validación de acceso.</span>
+                      <span>Cuando proceses una cotización, el resultado aparecerá aquí con el Precio FOB Miami en USD, la promoción aplicada y la validación de acceso.</span>
 
                     </div>
 
