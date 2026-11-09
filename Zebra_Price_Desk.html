@@ -875,6 +875,7 @@
       .results-table th, .results-table td { padding: 11px 9px; }
     }
 
+    .data-sync-meta { display:flex; align-items:center; justify-content:flex-end; gap:6px; max-width:1500px; margin:7px auto 0; padding:0 4px; color:#64748B; font-size:10px; font-weight:650; }
     .app-update-notice { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:12px auto; padding:15px 18px; max-width:1500px; border:1px solid #F2C66D; border-left:5px solid #D97706; border-radius:12px; background:#FFFBEB; color:#78350F; box-shadow:0 8px 22px rgba(120,53,15,.08); }
     .app-update-copy { display:flex; flex-direction:column; gap:5px; min-width:0; }
     .app-update-copy strong { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:850; }
@@ -1506,6 +1507,7 @@
       const [lastDataSync, setLastDataSync] = useState(null);
       const [updateAvailable, setUpdateAvailable] = useState(false);
       const lastDataSyncRef = useRef(0);
+      const syncInProgressRef = useRef(false);
 
 
 
@@ -2304,6 +2306,8 @@
 
       const syncDataFromDrive = async (silent = false) => {
 
+        if (syncInProgressRef.current) return;
+        syncInProgressRef.current = true;
         if (!silent) {
           setLoadingDrive(true);
           setSyncStatus('Sincronizando con Google Sheets...');
@@ -2406,7 +2410,10 @@
 
           if (!silent) setSyncStatus('Error al cargar datos. Revisa el acceso a las hojas de Google Sheets.');
 
-        } finally { if (!silent) setLoadingDrive(false); }
+        } finally {
+          syncInProgressRef.current = false;
+          if (!silent) setLoadingDrive(false);
+        }
 
       };
 
@@ -2428,7 +2435,7 @@
             const response = await fetch(`${VERSION_CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' });
             if (!response.ok) return;
             const remoteVersion = (await response.text()).trim();
-            if (active && /^\\d+$/.test(remoteVersion) && Number(remoteVersion) > Number(APP_VERSION)) setUpdateAvailable(true);
+            if (active && /^\d+$/.test(remoteVersion) && Number(remoteVersion) > Number(APP_VERSION)) setUpdateAvailable(true);
           } catch (error) { console.warn('No fue posible comprobar si hay una nueva versión del cotizador.', error); }
         };
         checkForUpdate();
@@ -3699,7 +3706,7 @@
 
           </div>
 
-
+          <div className="data-sync-meta"><Icon name="refresh" size={12}/> {lastDataSync ? `Bases de datos actualizadas: ${new Date(lastDataSync).toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'})}` : 'Sincronizando bases de datos...'}</div>
 
           <header className="header">
 
