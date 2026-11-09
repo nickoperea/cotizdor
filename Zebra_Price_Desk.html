@@ -3417,8 +3417,29 @@
             ];
           });
 
+          // Aviso destacado sobre la vigencia de los precios.
           doc.autoTable({
-            startY: 61,
+            startY: 60,
+            margin: { left: 9, right: 9, bottom: 15 },
+            body: [[
+              'VIGENCIA DE PRECIOS\\n' +
+              'Los precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.'
+            ]],
+            theme: 'plain',
+            styles: {
+              font: 'helvetica', fontSize: 8, cellPadding: 3.5,
+              overflow: 'linebreak', valign: 'middle',
+              textColor: [112, 79, 18], fillColor: [255, 249, 232],
+              lineColor: [242, 207, 117], lineWidth: 0.4
+            },
+            columnStyles: { 0: { cellWidth: 'auto' } },
+            didParseCell: data => {
+              if (data.section === 'body') data.cell.styles.fontStyle = 'normal';
+            }
+          });
+
+          doc.autoTable({
+            startY: (doc.lastAutoTable?.finalY || 60) + 5,
             margin: { left: 9, right: 9, bottom: 15 },
             head: [[
               'Estado / alerta', 'SKU', 'Descripción del producto', 'Nivel / Especialización',
@@ -3910,6 +3931,11 @@
 
                     <section className="panel result-panel">
 
+                      <div className="price-validity-notice" role="alert" style={{ marginBottom: '16px', padding: '13px 16px', border: '1px solid #f2cf75', borderLeft: '5px solid #d69e20', borderRadius: '8px', background: '#fff9e8', color: '#704f12', fontSize: '12px', lineHeight: 1.6 }}>
+                        <strong style={{ display: 'block', marginBottom: '4px', color: '#805b0b', letterSpacing: '.03em' }}>VIGENCIA DE PRECIOS</strong>
+                        Los precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.
+                      </div>
+
                       <div className="result-topline">
                         <div>
                           <h3 className="result-heading">Resultado de cotización</h3>
@@ -4050,6 +4076,11 @@
                   {inputMode === 'bulk' && bulkResults.length > 0 && (
 
                     <section className="panel result-panel">
+
+                      <div className="price-validity-notice" role="alert" style={{ marginBottom: '16px', padding: '13px 16px', border: '1px solid #f2cf75', borderLeft: '5px solid #d69e20', borderRadius: '8px', background: '#fff9e8', color: '#704f12', fontSize: '12px', lineHeight: 1.6 }}>
+                        <strong style={{ display: 'block', marginBottom: '4px', color: '#805b0b', letterSpacing: '.03em' }}>VIGENCIA DE PRECIOS</strong>
+                        Los precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.
+                      </div>
 
                       <div className="result-topline">
 
