@@ -3493,6 +3493,28 @@
             });
           }
 
+          // Aviso general: esta herramienta genera cotizaciones únicamente referenciales.
+          doc.autoTable({
+            startY: (doc.lastAutoTable?.finalY || 61) + 7,
+            margin: { left: 9, right: 9, bottom: 15 },
+            body: [[
+              'AVISO – COTIZACIÓN REFERENCIAL\\n' +
+              'Esta cotización es de carácter exclusivamente referencial y no constituye una oferta comercial ni una cotización oficial de Intcomex. Los precios, la disponibilidad y las condiciones comerciales están sujetos a validación y confirmación por parte de Intcomex.\\n' +
+              'Para obtener una cotización oficial, comuníquese con su agente de ventas.'
+            ]],
+            theme: 'plain',
+            styles: {
+              font: 'helvetica', fontSize: 8, cellPadding: 3.5,
+              overflow: 'linebreak', valign: 'middle',
+              textColor: [51, 65, 85], fillColor: [248, 250, 252],
+              lineColor: [203, 213, 225], lineWidth: 0.35
+            },
+            columnStyles: { 0: { cellWidth: 'auto' } },
+            didParseCell: data => {
+              if (data.section === 'body') data.cell.styles.fontStyle = 'normal';
+            }
+          });
+
           doc.save(`Cotizacion_Zebra_${new Date().getTime()}.pdf`);
 
         } catch (e) { console.error('Error al exportar PDF:',e); alert('Ocurrió un error al generar el PDF.'); }
@@ -4013,6 +4035,12 @@
                         </div>
                       )}
 
+                      <div className="reference-quote-notice" role="note" style={{ marginTop: '18px', padding: '13px 16px', border: '1px solid #cbd5e1', borderLeft: '4px solid #64748b', borderRadius: '8px', background: '#f8fafc', color: '#334155', fontSize: '12px', lineHeight: 1.6 }}>
+                        <strong style={{ display: 'block', marginBottom: '4px', color: '#1e293b', letterSpacing: '.03em' }}>AVISO – COTIZACIÓN REFERENCIAL</strong>
+                        Esta cotización es de carácter exclusivamente referencial y no constituye una oferta comercial ni una cotización oficial de Intcomex. Los precios, la disponibilidad y las condiciones comerciales están sujetos a validación y confirmación por parte de Intcomex.
+                        <strong style={{ display: 'block', marginTop: '6px', color: '#1e293b' }}>Para obtener una cotización oficial, comuníquese con su agente de ventas.</strong>
+                      </div>
+
                     </section>
 
                   )}
@@ -4132,6 +4160,12 @@
                           </div>
                         </div>
                       )}
+
+                      <div className="reference-quote-notice" role="note" style={{ marginTop: '18px', padding: '13px 16px', border: '1px solid #cbd5e1', borderLeft: '4px solid #64748b', borderRadius: '8px', background: '#f8fafc', color: '#334155', fontSize: '12px', lineHeight: 1.6 }}>
+                        <strong style={{ display: 'block', marginBottom: '4px', color: '#1e293b', letterSpacing: '.03em' }}>AVISO – COTIZACIÓN REFERENCIAL</strong>
+                        Esta cotización es de carácter exclusivamente referencial y no constituye una oferta comercial ni una cotización oficial de Intcomex. Los precios, la disponibilidad y las condiciones comerciales están sujetos a validación y confirmación por parte de Intcomex.
+                        <strong style={{ display: 'block', marginTop: '6px', color: '#1e293b' }}>Para obtener una cotización oficial, comuníquese con su agente de ventas.</strong>
+                      </div>
 
                     </section>
 
