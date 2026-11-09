@@ -3402,18 +3402,18 @@
             const qty = Number(r.boxQty) > 1 ? Number(r.boxQty) : 1;
             const unitDiscount = numericPrice(r.discountApplied) ?? 0;
             const discountText = qty > 1
-              ? `Unitario: -${money(unitDiscount)}\nCaja x ${qty}: -${money(unitDiscount * qty)}`
-              : (unitDiscount > 0 ? `-${money(unitDiscount)}` : '$0.00');
+              ? `Unitario: -${money(unitDiscount)} USD\nCaja x ${qty}: -${money(unitDiscount * qty)} USD`
+              : (unitDiscount > 0 ? `-${money(unitDiscount)} USD` : '$0.00 USD');
             return [
               r.access?.allowed ? 'VENTA PERMITIDA' : (r.access?.msg || 'BLOQUEADO'),
               r.sku || 'N/A',
               r.description || r.error || 'Sin descripción',
               r.source || 'No identificado',
               qty > 1 ? `Caja x ${qty} unds` : 'Unidad',
-              boxPriceLabel(r.listPrice, qty),
-              boxPriceLabel(r.basePrice, qty),
+              `${boxPriceLabel(r.listPrice, qty)} USD`,
+              `${boxPriceLabel(r.basePrice, qty)} USD`,
               discountText,
-              boxPriceLabel(r.finalPrice, qty)
+              `${boxPriceLabel(r.finalPrice, qty)} USD`
             ];
           });
 
@@ -4155,20 +4155,20 @@
 
                                 <td className="text-right">
                                   {res.basePrice == null ? '—' : (Number(res.boxQty) > 1 ? (
-                                    <><span className="table-old-value">Unitario: ${(Number(res.basePrice) || 0).toFixed(2)}</span><span className="sub-cell">Caja x {res.boxQty}: ${((Number(res.basePrice) || 0) * Number(res.boxQty)).toFixed(2)}</span></>
-                                  ) : <span className="table-old-value">${(Number(res.basePrice) || 0).toFixed(2)}</span>)}
+                                    <><span className="table-old-value">Unitario: ${(Number(res.basePrice) || 0).toFixed(2)} USD</span><span className="sub-cell">Caja x {res.boxQty}: ${((Number(res.basePrice) || 0) * Number(res.boxQty)).toFixed(2)} USD</span></>
+                                  ) : <span className="table-old-value">${(Number(res.basePrice) || 0).toFixed(2)} USD</span>)}
                                 </td>
 
                                 <td className="text-right">
                                   {Number(res.discountApplied) > 0 ? (Number(res.boxQty) > 1 ? (
-                                    <><span className="table-saving-value">Unitario: −${Number(res.discountApplied).toFixed(2)}</span><span className="sub-cell">Caja x {res.boxQty}: −${(Number(res.discountApplied) * Number(res.boxQty)).toFixed(2)}</span></>
-                                  ) : <span className="table-saving-value">−${Number(res.discountApplied).toFixed(2)}</span>) : '—'}
+                                    <><span className="table-saving-value">Unitario: −${Number(res.discountApplied).toFixed(2)} USD</span><span className="sub-cell">Caja x {res.boxQty}: −${(Number(res.discountApplied) * Number(res.boxQty)).toFixed(2)} USD</span></>
+                                  ) : <span className="table-saving-value">−${Number(res.discountApplied).toFixed(2)} USD</span>) : '—'}
                                 </td>
 
                                 <td className="text-right">
                                   <span className="table-final-value">{res.finalPrice == null ? '—' : (Number(res.boxQty) > 1 ? (
-                                    <><span>Unitario: ${(Number(res.finalPrice) || 0).toFixed(2)}</span><span className="sub-cell">Caja x {res.boxQty}: ${(Number(res.boxTotal ?? (Number(res.finalPrice) * Number(res.boxQty))) || 0).toFixed(2)}</span></>
-                                  ) : `$${(Number(res.finalPrice) || 0).toFixed(2)}`)}</span>
+                                    <><span>Unitario: ${(Number(res.finalPrice) || 0).toFixed(2)} USD</span><span className="sub-cell">Caja x {res.boxQty}: ${(Number(res.boxTotal ?? (Number(res.finalPrice) * Number(res.boxQty))) || 0).toFixed(2)} USD</span></>
+                                  ) : `${(Number(res.finalPrice) || 0).toFixed(2)} USD`)}</span>
                                 </td>
 
                               </tr>
