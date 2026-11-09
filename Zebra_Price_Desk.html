@@ -808,6 +808,14 @@
 
     .product-description-cell { min-width: 240px; max-width: 420px; white-space: normal; line-height: 1.45; color: #4b5563; font-size: 11px; }
 
+    .eos-warning {
+      display: flex; align-items: flex-start; gap: 11px; margin-top: 17px; padding: 15px 16px;
+      border: 1px solid #F0C36D; border-left: 4px solid #D97706; border-radius: 12px;
+      background: #FFFAEB; color: #78350F; font-size: 10px; line-height: 1.6;
+    }
+    .eos-warning strong { display: block; margin-bottom: 3px; color: #92400E; font-size: 10px; font-weight: 900; }
+    .eos-warning-skus { display: block; margin-top: 5px; font-weight: 800; overflow-wrap: anywhere; }
+
     /* Ajustes de distribución del cotizador */
     .layout { grid-template-columns: minmax(0, 1fr); }
     .content-column { gap: 14px; }
@@ -2682,6 +2690,9 @@
 
         const dnpItem = dnpData.find(item => clean(item['A']) === targetSku || clean(item['Part Number (SKU)']) === targetSku || clean(item['Material']) === targetSku);
 
+        // La columna BI de la lista de precios identifica los productos Pending End Of Sale.
+        const isPendingEndOfSale = clean(priceItem?.['BI'] || priceItem?.['col_60'] || '').includes('PENDING END OF SALE');
+
         const NOT_FOUND_MSG = 'No encontrado en bases de datos, verifique que esté correcto o comuníquese con el equipo de Zebra';
 
         if (!priceItem && !dnpItem) return { sku: targetSku, error: NOT_FOUND_MSG, source: 'N/A', access: { allowed: false, msg: 'No encontrado' } };
@@ -2936,7 +2947,8 @@
 
               access: { allowed: false, msg: 'Registro DNP sin precios: requiere corrección' },
 
-              partnerName, partnerLevel, country, region: effectiveRegion
+              partnerName, partnerLevel, country, region: effectiveRegion,
+              isPendingEndOfSale
 
             };
 
@@ -2964,7 +2976,8 @@
 
               access: { allowed: false, msg: 'Sin precio DNP aplicable' },
 
-              partnerName, partnerLevel, country, region: effectiveRegion
+              partnerName, partnerLevel, country, region: effectiveRegion,
+              isPendingEndOfSale
 
             };
 
@@ -3116,13 +3129,14 @@
 
             rawAccessCode: String(accessCode || '1-Open'),
 
-            partnerName, partnerLevel, country, region: effectiveRegion
+            partnerName, partnerLevel, country, region: effectiveRegion,
+            isPendingEndOfSale
 
           };
 
         }
 
-        return { sku: targetSku, error: 'Sin precio asignable en bases de datos', source: 'N/A', access: { allowed: false, msg: 'Sin Precio' } };
+        return { sku: targetSku, error: 'Sin precio asignable en bases de datos', source: 'N/A', access: { allowed: false, msg: 'Sin Precio' }, isPendingEndOfSale };
 
       };
 
@@ -3228,7 +3242,7 @@
 
       const getExportResults = () => (inputMode === 'single' ? [searchResult] : bulkResults).filter(Boolean);
 
-      
+      const getPendingEndOfSaleResults = results => (results || []).filter(result => result?.isPendingEndOfSale);
 
       const exportToExcel = () => {
 
@@ -3452,6 +3466,32 @@
               doc.text(`Página ${currentPage}`, pageWidth - 9, pageHeight - 5, { align: 'right' });
             }
           });
+
+          // Aviso final para referencias próximas a descontinuarse (columna BI).
+          const pendingEndOfSaleResults = getPendingEndOfSaleResults(validResults);
+          if (pendingEndOfSaleResults.length > 0) {
+            const pendingSkus = pendingEndOfSaleResults.map(result => result.sku).join(', ');
+            doc.autoTable({
+              startY: (doc.lastAutoTable?.finalY || 61) + 7,
+              margin: { left: 9, right: 9, bottom: 15 },
+              body: [[
+                'ATENCIÓN · PENDING END OF SALE\n' +
+                'Los siguientes números de parte están próximos a descontinuarse según la lista de precios Zebra: ' + pendingSkus + '. ' +
+                'No se recomienda gestionar su compra sin confirmar previamente el compromiso del cliente, ya que su orden no será cancelable y será facturada.'
+              ]],
+              theme: 'plain',
+              styles: {
+                font: 'helvetica', fontSize: 8, cellPadding: 3.5,
+                overflow: 'linebreak', valign: 'middle',
+                textColor: [120, 53, 15], fillColor: [255, 250, 235],
+                lineColor: [240, 195, 109], lineWidth: 0.35
+              },
+              columnStyles: { 0: { cellWidth: 'auto' } },
+              didParseCell: data => {
+                if (data.section === 'body') data.cell.styles.fontStyle = 'bold';
+              }
+            });
+          }
 
           doc.save(`Cotizacion_Zebra_${new Date().getTime()}.pdf`);
 
@@ -3962,6 +4002,17 @@
 
                       )}
 
+                      {getPendingEndOfSaleResults([searchResult]).length > 0 && (
+                        <div className="eos-warning" role="alert">
+                          <Icon name="alert-triangle" size={19}/>
+                          <div>
+                            <strong>PRODUCTO PRÓXIMO A DESCONTINUARSE · PENDING END OF SALE</strong>
+                            Este producto se encuentra marcado como Pending End Of Sale en la lista de precios Zebra. No se recomienda gestionar su compra sin confirmar previamente el compromiso del cliente, ya que no podremos garantizar la rotación del inventario si la compra se cancela.
+                            <span className="eos-warning-skus">Número de parte: {searchResult.sku}</span>
+                          </div>
+                        </div>
+                      )}
+
                     </section>
 
                   )}
@@ -4070,6 +4121,17 @@
                         </table>
 
                       </div>
+
+                      {getPendingEndOfSaleResults(bulkResults).length > 0 && (
+                        <div className="eos-warning" role="alert">
+                          <Icon name="alert-triangle" size={19}/>
+                          <div>
+                            <strong>ATENCIÓN: PRODUCTOS PENDING END OF SALE</strong>
+                            Los siguientes números de parte están próximos a descontinuarse según la lista de precios Zebra. No se recomienda gestionar su compra sin confirmar previamente el compromiso del cliente, ya que su orden no será cancelable y será facturada.
+                            <span className="eos-warning-skus">Números de parte: {getPendingEndOfSaleResults(bulkResults).map(result => result.sku).join(', ')}</span>
+                          </div>
+                        </div>
+                      )}
 
                     </section>
 
