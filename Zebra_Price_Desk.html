@@ -3443,7 +3443,7 @@
             margin: { left: 9, right: 9, bottom: 15 },
             head: [[
               'Estado / alerta', 'SKU', 'Descripción del producto', 'Nivel / Especialización',
-              'Empaque', 'MSRP · List Price', 'Precio', 'Ahorro promo', 'Precio FOB Miami (USD)'
+              'Empaque', 'MSRP · List Price (USD)', 'Precio base (USD)', 'Ahorro promo (USD)', 'Precio FOB Miami (USD)'
             ]],
             body: tableData,
             theme: 'grid',
@@ -4036,7 +4036,7 @@
 
                           <div className="metric-grid">
 
-                            <MetricCard label="MSRP · List Price" value={searchResult.listPrice === 'N/A' ? 'N/A' : `$${searchResult.listPrice.toString().replace(/^\$/, '')}`}/>
+                            <MetricCard label="MSRP · List Price (USD)" value={searchResult.listPrice === 'N/A' ? 'N/A' : `${searchResult.listPrice.toString().replace(/^\$/, '')} USD`}/>
 
                             <MetricCard label="Nivel detectado" value={searchResult.partnerLevel}/>
 
@@ -4113,11 +4113,11 @@
 
                               <th className="text-center">Empaque</th>
 
-                              <th className="text-right">MSRP · List Price</th>
+                              <th className="text-right">MSRP · List Price (USD)</th>
 
                               <th className="text-right">Precio FOB Miami unitario (USD)</th>
 
-                              <th className="text-right">Ahorro unitario</th>
+                              <th className="text-right">Ahorro unitario (USD)</th>
 
                               <th className="text-right">Precio FOB Miami caja (USD)</th>
 
