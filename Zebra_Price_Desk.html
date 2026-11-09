@@ -875,6 +875,14 @@
       .results-table th, .results-table td { padding: 11px 9px; }
     }
 
+    .app-update-notice { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:12px auto; padding:15px 18px; max-width:1500px; border:1px solid #F2C66D; border-left:5px solid #D97706; border-radius:12px; background:#FFFBEB; color:#78350F; box-shadow:0 8px 22px rgba(120,53,15,.08); }
+    .app-update-copy { display:flex; flex-direction:column; gap:5px; min-width:0; }
+    .app-update-copy strong { display:flex; align-items:center; gap:8px; font-size:14px; font-weight:850; }
+    .app-update-copy span { font-size:12px; line-height:1.5; }
+    .app-update-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; flex:0 0 auto; border:0; border-radius:8px; padding:11px 15px; background:#B45309; color:#fff; font:inherit; font-size:12px; font-weight:800; cursor:pointer; }
+    .app-update-button:hover { background:#92400E; }
+    @media (max-width:640px) { .app-update-notice { align-items:stretch; flex-direction:column; margin:10px; } .app-update-button { width:100%; } }
+
 </style>
 
 </head>
@@ -906,6 +914,9 @@
     const DEFAULT_USERS_SHEET_ID = '1z_-VWCunuX4fNa6FEBQ2IT4bmtWAdC6VVKSc2ztL7IE';
 
     const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
+    // Actualizar también version.txt cada vez que se publique una nueva versión.
+    const APP_VERSION = '202611091205';
+    const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/nickoperea/cotizdor/main/version.txt';
 
 
 
@@ -1492,6 +1503,9 @@
       const [loadingDrive, setLoadingDrive] = useState(false);
 
       const [syncStatus, setSyncStatus] = useState('Pendiente de carga');
+      const [lastDataSync, setLastDataSync] = useState(null);
+      const [updateAvailable, setUpdateAvailable] = useState(false);
+      const lastDataSyncRef = useRef(0);
 
 
 
@@ -2288,11 +2302,12 @@
 
 
 
-      const syncDataFromDrive = async () => {
+      const syncDataFromDrive = async (silent = false) => {
 
-        setLoadingDrive(true);
-
-        setSyncStatus('Sincronizando con Google Sheets...');
+        if (!silent) {
+          setLoadingDrive(true);
+          setSyncStatus('Sincronizando con Google Sheets...');
+        }
 
         try {
 
@@ -2379,18 +2394,57 @@
           }
 
           setUsersAccessVerified(true);
+          const syncedAt = Date.now();
+          lastDataSyncRef.current = syncedAt;
+          setLastDataSync(syncedAt);
 
-          setSyncStatus(`Cargado con éxito: ${priceRes?.length || 0} precios, ${dnpRes?.length || 0} DNP, ${partnerRes?.length || 0} partners, ${syncedUsers.length || 0} usuarios y ${promotionsRes.length} reglas de promoción.`);
+          if (!silent) setSyncStatus(`Cargado con éxito: ${priceRes?.length || 0} precios, ${dnpRes?.length || 0} DNP, ${partnerRes?.length || 0} partners, ${syncedUsers.length || 0} usuarios y ${promotionsRes.length} reglas de promoción.`);
 
         } catch (err) {
 
           console.error('Error al sincronizar con Google Sheets:', err);
 
-          setSyncStatus('Error al cargar datos. Revisa el acceso a las hojas de Google Sheets.');
+          if (!silent) setSyncStatus('Error al cargar datos. Revisa el acceso a las hojas de Google Sheets.');
 
-        } finally { setLoadingDrive(false); }
+        } finally { if (!silent) setLoadingDrive(false); }
 
       };
+
+      // Sincronización silenciosa de bases cada 30 minutos; también al volver a la pestaña si se retrasó.
+      useEffect(() => {
+        const syncIfNeeded = () => {
+          if (document.visibilityState === 'visible' && Date.now() - lastDataSyncRef.current >= 30 * 60 * 1000) syncDataFromDrive(true);
+        };
+        const intervalId = window.setInterval(syncIfNeeded, 30 * 60 * 1000);
+        document.addEventListener('visibilitychange', syncIfNeeded);
+        return () => { window.clearInterval(intervalId); document.removeEventListener('visibilitychange', syncIfNeeded); };
+      }, []);
+
+      // Consulta un archivo pequeño de versión cada 2 minutos, sin descargar de nuevo todo el HTML.
+      useEffect(() => {
+        let active = true;
+        const checkForUpdate = async () => {
+          try {
+            const response = await fetch(`${VERSION_CHECK_URL}?t=${Date.now()}`, { cache: 'no-store' });
+            if (!response.ok) return;
+            const remoteVersion = (await response.text()).trim();
+            if (active && /^\\d+$/.test(remoteVersion) && Number(remoteVersion) > Number(APP_VERSION)) setUpdateAvailable(true);
+          } catch (error) { console.warn('No fue posible comprobar si hay una nueva versión del cotizador.', error); }
+        };
+        checkForUpdate();
+        const intervalId = window.setInterval(checkForUpdate, 2 * 60 * 1000);
+        return () => { active = false; window.clearInterval(intervalId); };
+      }, []);
+
+      const updateNotice = updateAvailable ? (
+        <div className="app-update-notice" role="status" aria-live="polite">
+          <div className="app-update-copy">
+            <strong><Icon name="refresh" size={16}/> Nueva versión disponible</strong>
+            <span>El cotizador Zebra Price Desk recibió una nueva actualización. Para disfrutar de las últimas mejoras y funcionalidades, por favor, recarga la página.</span>
+          </div>
+          <button type="button" className="app-update-button" onClick={() => window.location.reload()}><Icon name="refresh" size={14}/> Recargar cotizador</button>
+        </div>
+      ) : null;
 
 
 
@@ -3555,6 +3609,8 @@
 
           <div className="login-screen">
 
+            {updateNotice}
+
             <div className="login-card">
 
               <div className="login-brand">
@@ -3630,6 +3686,8 @@
       return (
 
         <div className="app-shell">
+
+          {updateNotice}
 
           <div className="top-alert"><Icon name="shield" size={14}/> Solo para uso interno · Información comercial confidencial</div>
 
