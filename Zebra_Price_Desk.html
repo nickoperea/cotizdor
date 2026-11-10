@@ -921,7 +921,7 @@
 
     const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
     // Actualizar también version.txt cada vez que se publique una nueva versión.
-    const APP_VERSION = '202611101630';
+    const APP_VERSION = '202611101700';
     const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/nickoperea/cotizdor/main/version.txt';
 
 
@@ -4031,7 +4031,7 @@
 
                       <div className="result-topline">
                         <div>
-                          <h3 className="result-heading">Resultado de cotización</h3>
+                          <h3 className="result-heading">{tx('Resultado de cotización', 'Quotation result')}</h3>
                           <span className="result-date">{new Date().toLocaleDateString('es-CO')}</span>
                           {clientName.trim() && <span className="result-date" style={{display:'block', marginTop:5}}>Cliente final: <strong>{clientName.trim()}</strong></span>}
                         </div>
@@ -4085,7 +4085,7 @@
 
                             <div className="price-card">
 
-                              <div className="price-label">Precio FOB Miami (USD) {searchResult.boxQty > 1 ? '(Unitario)' : ''}</div>
+                              <div className="price-label">{tx('Precio FOB Miami (USD)', 'FOB Miami Price (USD)')} {searchResult.boxQty > 1 ? tx('(Unitario)', '(Unit price)') : ''}</div>
 
                               {Number(searchResult.discountApplied) > 0 && searchResult.promoCode !== 'Sin Promo' && (
 
@@ -4178,7 +4178,7 @@
                       <div className="result-topline">
 
                         <div>
-                          <h3 className="result-heading">Reporte masivo</h3>
+                          <h3 className="result-heading">{tx('Reporte masivo', 'Bulk quotation report')}</h3>
                           <span className="result-date">{quoteLanguage === 'en' ? bulkResults.length + ' SKU(s) processed · Promotions validated' : bulkResults.length + ' SKU procesado(s) · Validado con promociones'}</span>
                           <span className="result-date" style={{display:'block', marginTop:5}}>Partner: <strong>{bulkResults[0]?.partnerName || (partnerType === 'new' ? newPartnerName : partnerNameInput) || 'No identificado'}</strong></span>
                           {clientName.trim() && <span className="result-date" style={{display:'block', marginTop:5}}>Cliente final: <strong>{clientName.trim()}</strong></span>}
@@ -4196,23 +4196,23 @@
 
                             <tr>
 
-                              <th>Estado / alerta</th>
+                              <th>{tx('Estado / alerta', 'Status / Alert')}</th>
 
                               <th>SKU</th>
 
-                              <th>Descripción del producto</th>
+                              <th>{tx('Descripción del producto', 'Product description')}</th>
 
-                              <th>Nivel / Especialización</th>
+                              <th>{tx('Nivel / Especialización', 'Level / Specialization')}</th>
 
-                              <th className="text-center">Empaque</th>
+                              <th className="text-center">{tx('Empaque', 'Packaging')}</th>
 
                               <th className="text-right">MSRP · List Price (USD)</th>
 
-                              <th className="text-right">Precio FOB Miami unitario (USD)</th>
+                              <th className="text-right">{tx('Precio FOB Miami unitario (USD)', 'FOB Miami unit price (USD)')}</th>
 
-                              <th className="text-right">Ahorro unitario (USD)</th>
+                              <th className="text-right">{tx('Ahorro unitario (USD)', 'Unit savings (USD)')}</th>
 
-                              <th className="text-right">Precio FOB Miami caja (USD)</th>
+                              <th className="text-right">{tx('Precio FOB Miami caja (USD)', 'FOB Miami case price (USD)')}</th>
 
                             </tr>
 
