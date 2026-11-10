@@ -309,6 +309,10 @@
     .quote-panel { overflow: visible; }
 
     .quote-panel-top { padding: 21px 22px 17px; border-bottom: 1px solid #E6EAF0; }
+    .quote-language-control { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 15px; }
+    .quote-language-label { color: #657181; font-size: 9px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    .quote-language-control .segmented { padding: 3px; }
+    .quote-language-control .tab-button { min-height: 30px; padding: 7px 11px; font-size: 9px; }
 
     .step-label { margin: 0 0 11px; color: #657181; font-size: 9px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
 
@@ -761,6 +765,7 @@
       .panel-pad, .form-body, .result-panel { padding: 16px; }
 
       .quote-panel-top { padding: 16px; }
+      .quote-language-control { justify-content: space-between; flex-wrap: wrap; }
 
       .segmented-row { display: grid; grid-template-columns: 1fr; }
 
@@ -1510,6 +1515,11 @@
       const syncInProgressRef = useRef(false);
 
 
+
+      const [quoteLanguage, setQuoteLanguage] = useState(() => { try { return sessionStorage.getItem('zebra_quote_language') === 'en' ? 'en' : 'es'; } catch (e) { return 'es'; } });
+      const tx = (spanish, english) => quoteLanguage === 'en' ? english : spanish;
+      const changeQuoteLanguage = (language) => { setQuoteLanguage(language); try { sessionStorage.setItem('zebra_quote_language', language); } catch (e) {} };
+      const translateAccessMessage = (message) => { if (quoteLanguage !== 'en') return message; const normalized = clean(message); const translations = {'VENTA PERMITIDA':'SALE ALLOWED','NO DISPONIBLE':'NOT AVAILABLE','BLOQUEADO':'BLOCKED','NO ENCONTRADO':'NOT FOUND','ACCESO RESTRINGIDO':'ACCESS RESTRICTED'}; return translations[normalized] || message; };
 
       const [loginUsername, setLoginUsername] = useState('');
 
@@ -3806,7 +3816,15 @@
 
                     <div className="quote-panel-top">
 
-                      <p className="step-label">Configura tu consulta · Paso 1</p>
+                      <div className="quote-language-control">
+                        <span className="quote-language-label">{tx('Idioma de la cotización', 'Quotation language')}</span>
+                        <div className="segmented" role="group" aria-label="Quotation language">
+                          <Tab active={quoteLanguage === 'es'} onClick={() => changeQuoteLanguage('es')} label="🇨🇴 Español"/>
+                          <Tab active={quoteLanguage === 'en'} onClick={() => changeQuoteLanguage('en')} label="🇬🇧 English"/>
+                        </div>
+                      </div>
+
+                      <p className="step-label">{tx('Configura tu consulta · Paso 1', 'Configure your quote · Step 1')}</p>
 
                       <div className="segmented-row">
 
