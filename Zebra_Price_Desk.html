@@ -3321,6 +3321,28 @@
 
         const results = inputMode === 'single' ? [searchResult] : bulkResults;
 
+        if (quoteLanguage === 'en') {
+          const englishRows = results.filter(Boolean).map(r => ({
+            Customer: clientName.trim() || 'Not specified',
+            SKU: r.sku,
+            Description: r.description || r.error,
+            Packaging: r.boxQty > 1 ? 'Case x ' + r.boxQty + ' units' : 'Unit',
+            'MSRP (List Price per Unit)': r.listPrice,
+            'Base Price per Unit (USD)': r.basePrice,
+            'Discount per Unit (USD)': r.discountApplied ?? 0,
+            'Final Price per Unit (USD)': r.finalPrice,
+            'FOB Miami Case Total (USD)': r.boxTotal,
+            'Access Code': r.rawAccessCode,
+            'Status / Alert': r.access?.allowed ? 'SALE ALLOWED' : translateAccessMessage(r.access?.msg || 'NOT AVAILABLE'),
+            'Level / Specialization (price source)': r.source
+          }));
+          const englishSheet = window.XLSX.utils.json_to_sheet(englishRows);
+          const englishBook = window.XLSX.utils.book_new();
+          window.XLSX.utils.book_append_sheet(englishBook, englishSheet, 'Zebra Quotation');
+          window.XLSX.writeFile(englishBook, 'Zebra_Quotation_' + Date.now() + '.xlsx');
+          return;
+        }
+
         const worksheetData = results.filter(Boolean).map(r => ({
 
           Cliente: clientName.trim() || 'No especificado',
