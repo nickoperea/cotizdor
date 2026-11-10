@@ -3417,8 +3417,8 @@
 
           const pageWidth = doc.internal.pageSize.getWidth();
           const pageHeight = doc.internal.pageSize.getHeight();
-          const partner = validResults[0]?.partnerName || (partnerType === 'new' ? newPartnerName : partnerNameInput) || 'No identificado';
-          const customer = clientName.trim() || 'No especificado';
+          const partner = validResults[0]?.partnerName || (partnerType === 'new' ? newPartnerName : partnerNameInput) || tx('No identificado', 'Not identified');
+          const customer = clientName.trim() || tx('No especificado', 'Not specified');
           const numericPrice = (value) => {
             const number = Number(String(value ?? '').replace(/[$,\s]/g, ''));
             return Number.isFinite(number) ? number : null;
@@ -3495,13 +3495,13 @@
             const qty = Number(r.boxQty) > 1 ? Number(r.boxQty) : 1;
             const unitDiscount = numericPrice(r.discountApplied) ?? 0;
             const discountText = qty > 1
-              ? `Unitario: -${money(unitDiscount)} USD\nCaja x ${qty}: -${money(unitDiscount * qty)} USD`
+              ? (quoteLanguage === 'en' ? `Unit: -${money(unitDiscount)} USD\nCase x ${qty}: -${money(unitDiscount * qty)} USD` : `Unitario: -${money(unitDiscount)} USD\nCaja x ${qty}: -${money(unitDiscount * qty)} USD`)
               : (unitDiscount > 0 ? `-${money(unitDiscount)} USD` : '$0.00 USD');
             return [
               r.access?.allowed ? tx('VENTA PERMITIDA', 'SALE ALLOWED') : translateAccessMessage(r.access?.msg || tx('BLOQUEADO', 'BLOCKED')),
               r.sku || 'N/A',
-              r.description || r.error || 'Sin descripción',
-              r.source || 'No identificado',
+              r.description || r.error || tx('Sin descripción', 'No description'),
+              r.source || tx('No identificado', 'Not identified'),
               qty > 1 ? (quoteLanguage === 'en' ? `Case x ${qty} units` : `Caja x ${qty} unds`) : tx('Unidad', 'Unit'),
               `${boxPriceLabel(r.listPrice, qty)} USD`,
               `${boxPriceLabel(r.basePrice, qty)} USD`,
@@ -3514,7 +3514,7 @@
           doc.autoTable({
             startY: 60,
             margin: { left: 9, right: 9, bottom: 15 },
-            body: [[tx('VIGENCIA DE PRECIOS\\nLos precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.', 'PRICE VALIDITY\\nThe prices shown are for reference only and may change without prior notice due to manufacturer updates or changes in commercial conditions. Price validity and final pricing must be confirmed when requesting an official quotation.')]]
+            body: [[tx('VIGENCIA DE PRECIOS\\nLos precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.', 'PRICE VALIDITY\\nThe prices shown are for reference only and may change without prior notice due to manufacturer updates or changes in commercial conditions. Price validity and final pricing must be confirmed when requesting an official quotation.')]],
             theme: 'plain',
             styles: {
               font: 'helvetica', fontSize: 8, cellPadding: 3.5,
@@ -3584,7 +3584,7 @@
             doc.autoTable({
               startY: (doc.lastAutoTable?.finalY || 61) + 7,
               margin: { left: 9, right: 9, bottom: 15 },
-              body: [[tx('ATENCIÓN · PENDING END OF SALE\\nLos siguientes números de parte están próximos a descontinuarse según la lista de precios Zebra: ', 'WARNING · PENDING END OF SALE\\nThe following part numbers are marked as Pending End Of Sale in the Zebra price list: ') + pendingSkus + '. ' + tx('No se recomienda gestionar su compra sin confirmar previamente el compromiso del cliente, ya que su orden no será cancelable y será facturada.', 'Do not proceed with the purchase without first confirming the customer commitment, as the order cannot be cancelled and will be invoiced.')]]
+              body: [[tx('ATENCIÓN · PENDING END OF SALE\\nLos siguientes números de parte están próximos a descontinuarse según la lista de precios Zebra: ', 'WARNING · PENDING END OF SALE\\nThe following part numbers are marked as Pending End Of Sale in the Zebra price list: ') + pendingSkus + '. ' + tx('No se recomienda gestionar su compra sin confirmar previamente el compromiso del cliente, ya que su orden no será cancelable y será facturada.', 'Do not proceed with the purchase without first confirming the customer commitment, as the order cannot be cancelled and will be invoiced.')]],
               theme: 'plain',
               styles: {
                 font: 'helvetica', fontSize: 8, cellPadding: 3.5,
@@ -3603,7 +3603,7 @@
           doc.autoTable({
             startY: (doc.lastAutoTable?.finalY || 61) + 7,
             margin: { left: 9, right: 9, bottom: 15 },
-            body: [[tx('AVISO – COTIZACIÓN REFERENCIAL\\nEsta cotización es de carácter exclusivamente referencial y no constituye una oferta comercial ni una cotización oficial de Intcomex. Los precios, la disponibilidad y las condiciones comerciales están sujetos a validación y confirmación por parte de Intcomex.\\nPara obtener una cotización oficial, comuníquese con su agente de ventas.', 'REFERENCE QUOTATION NOTICE\\nThis quotation is provided for reference purposes only and does not constitute a commercial offer or an official quotation from Intcomex. Prices, availability, and commercial terms are subject to validation and confirmation by Intcomex.\\nTo obtain an official quotation, please contact your sales representative.')]]
+            body: [[tx('AVISO – COTIZACIÓN REFERENCIAL\\nEsta cotización es de carácter exclusivamente referencial y no constituye una oferta comercial ni una cotización oficial de Intcomex. Los precios, la disponibilidad y las condiciones comerciales están sujetos a validación y confirmación por parte de Intcomex.\\nPara obtener una cotización oficial, comuníquese con su agente de ventas.', 'REFERENCE QUOTATION NOTICE\\nThis quotation is provided for reference purposes only and does not constitute a commercial offer or an official quotation from Intcomex. Prices, availability, and commercial terms are subject to validation and confirmation by Intcomex.\\nTo obtain an official quotation, please contact your sales representative.')]],
             theme: 'plain',
             styles: {
               font: 'helvetica', fontSize: 8, cellPadding: 3.5,
@@ -4025,8 +4025,8 @@
                     <section className="panel result-panel">
 
                       <div className="price-validity-notice" role="alert" style={{ marginBottom: '16px', padding: '13px 16px', border: '1px solid #f2cf75', borderLeft: '5px solid #d69e20', borderRadius: '8px', background: '#fff9e8', color: '#704f12', fontSize: '12px', lineHeight: 1.6 }}>
-                        <strong style={{ display: 'block', marginBottom: '4px', color: '#805b0b', letterSpacing: '.03em' }}>VIGENCIA DE PRECIOS</strong>
-                        Los precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.
+                        <strong style={{ display: 'block', marginBottom: '4px', color: '#805b0b', letterSpacing: '.03em' }}>{tx('VIGENCIA DE PRECIOS', 'PRICE VALIDITY')}</strong>
+                        {tx('Los precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.', 'The prices shown are for reference only and may change without prior notice due to manufacturer updates or changes in commercial conditions. Price validity and final pricing must be confirmed when requesting an official quotation.')}
                       </div>
 
                       <div className="result-topline">
@@ -4147,9 +4147,9 @@
                         <div className="eos-warning" role="alert">
                           <Icon name="alert-triangle" size={19}/>
                           <div>
-                            <strong>PRODUCTO PRÓXIMO A DESCONTINUARSE · PENDING END OF SALE</strong>
-                            Este producto se encuentra marcado como Pending End Of Sale en la lista de precios Zebra. No se recomienda gestionar su compra sin confirmar previamente el compromiso del cliente, ya que su orden no será cancelable y será facturada.
-                            <span className="eos-warning-skus">Número de parte: {searchResult.sku}</span>
+                            <strong>{tx('PRODUCTO PRÓXIMO A DESCONTINUARSE · PENDING END OF SALE', 'PRODUCT APPROACHING DISCONTINUATION · PENDING END OF SALE')}</strong>
+                            {tx('Este producto se encuentra marcado como Pending End Of Sale en la lista de precios Zebra. No se recomienda gestionar su compra sin confirmar previamente el compromiso del cliente, ya que su orden no será cancelable y será facturada.', 'This product is marked as Pending End Of Sale in the Zebra price list. Do not proceed with the purchase without first confirming the customer commitment, as the order cannot be cancelled and will be invoiced.')}
+                            <span className="eos-warning-skus">{tx('Número de parte:', 'Part number:')} {searchResult.sku}</span>
                           </div>
                         </div>
                       )}
@@ -4171,20 +4171,20 @@
                     <section className="panel result-panel">
 
                       <div className="price-validity-notice" role="alert" style={{ marginBottom: '16px', padding: '13px 16px', border: '1px solid #f2cf75', borderLeft: '5px solid #d69e20', borderRadius: '8px', background: '#fff9e8', color: '#704f12', fontSize: '12px', lineHeight: 1.6 }}>
-                        <strong style={{ display: 'block', marginBottom: '4px', color: '#805b0b', letterSpacing: '.03em' }}>VIGENCIA DE PRECIOS</strong>
-                        Los precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.
+                        <strong style={{ display: 'block', marginBottom: '4px', color: '#805b0b', letterSpacing: '.03em' }}>{tx('VIGENCIA DE PRECIOS', 'PRICE VALIDITY')}</strong>
+                        {tx('Los precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.', 'The prices shown are for reference only and may change without prior notice due to manufacturer updates or changes in commercial conditions. Price validity and final pricing must be confirmed when requesting an official quotation.')}
                       </div>
 
                       <div className="result-topline">
 
                         <div>
                           <h3 className="result-heading">Reporte masivo</h3>
-                          <span className="result-date">{bulkResults.length} SKU procesado(s) · Validado con promociones</span>
+                          <span className="result-date">{quoteLanguage === 'en' ? bulkResults.length + ' SKU(s) processed · Promotions validated' : bulkResults.length + ' SKU procesado(s) · Validado con promociones'}</span>
                           <span className="result-date" style={{display:'block', marginTop:5}}>Partner: <strong>{bulkResults[0]?.partnerName || (partnerType === 'new' ? newPartnerName : partnerNameInput) || 'No identificado'}</strong></span>
                           {clientName.trim() && <span className="result-date" style={{display:'block', marginTop:5}}>Cliente final: <strong>{clientName.trim()}</strong></span>}
                         </div>
 
-                        <span className="sync-pill">{bulkResults.filter(r => r.access?.allowed).length} permitidos</span>
+                        <span className="sync-pill">{bulkResults.filter(r => r.access?.allowed).length} {tx('permitidos', 'allowed')}</span>
 
                       </div>
 
@@ -4224,7 +4224,7 @@
 
                               <tr key={`${res.sku}-${i}`} className={!res.access?.allowed ? 'row-error' : ''}>
 
-                                <td><span className={`status-badge ${res.access?.allowed ? 'success' : 'danger'}`}>{res.access?.allowed ? 'Venta permitida' : (res.access?.msg || 'No disponible')}</span></td>
+                                <td><span className={`status-badge ${res.access?.allowed ? 'success' : 'danger'}`}>{res.access?.allowed ? tx('Venta permitida', 'Sale allowed') : translateAccessMessage(res.access?.msg || tx('No disponible', 'Not available'))}</span></td>
 
                                 <td className="sku-cell">{res.sku}<span className="sub-cell">Code: {res.rawAccessCode || 'N/A'}</span>{res.error && <span className="sub-cell">{res.error}</span>}</td>
 
