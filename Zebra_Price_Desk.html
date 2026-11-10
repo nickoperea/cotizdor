@@ -3384,7 +3384,7 @@
 
       const exportToPDF = async () => {
 
-        if (!window.jspdf) { alert('No fue posible cargar el módulo PDF. Recarga la página e intenta de nuevo.'); return; }
+        if (!window.jspdf) { alert(tx('No fue posible cargar el módulo PDF. Recarga la página e intenta de nuevo.', 'The PDF module could not be loaded. Reload the page and try again.')); return; }
 
         try {
 
@@ -3431,7 +3431,7 @@
             const unit = numericPrice(unitValue);
             if (unit === null) return 'N/A';
             if (!(Number(boxQty) > 1)) return money(unit);
-            return `Unitario: ${money(unit)}\nCaja x ${boxQty}: ${money(unit * Number(boxQty))}`;
+            return quoteLanguage === 'en' ? `Unit price: ${money(unit)}\nCase x ${boxQty}: ${money(unit * Number(boxQty))}` : `Unitario: ${money(unit)}\nCaja x ${boxQty}: ${money(unit * Number(boxQty))}`;
           };
           const fitLogo = (logo, x, y, maxW, maxH) => {
             if (!logo) return false;
@@ -3451,7 +3451,7 @@
           doc.setTextColor(25, 35, 45);
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(17);
-          doc.text('COTIZACIÓN COMERCIAL', pageWidth / 2, 17, { align: 'center' });
+          doc.text(tx('COTIZACIÓN COMERCIAL', 'COMMERCIAL QUOTATION'), pageWidth / 2, 17, { align: 'center' });
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(8);
           doc.setTextColor(90, 100, 110);
@@ -3479,17 +3479,17 @@
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(8.5);
           doc.text('PARTNER', 10, 42);
-          doc.text('CLIENTE FINAL', 105, 42);
-          doc.text('FECHA', pageWidth - 54, 42);
+          doc.text(tx('CLIENTE FINAL', 'END CUSTOMER'), 105, 42);
+          doc.text(tx('FECHA', 'DATE'), pageWidth - 54, 42);
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(9);
           doc.text(String(partner), 10, 48, { maxWidth: 88 });
           doc.text(String(customer), 105, 48, { maxWidth: 88 });
-          doc.text(new Date().toLocaleDateString('es-CO'), pageWidth - 54, 48);
+          doc.text(new Date().toLocaleDateString(quoteLanguage === 'en' ? 'en-TT' : 'es-CO'), pageWidth - 54, 48);
           doc.setFontSize(7.5);
           doc.setTextColor(105, 115, 125);
-          doc.text(`Generado por: ${currentUser?.name || 'Usuario'}`, 10, 55);
-          doc.text(`Productos: ${validResults.length}`, pageWidth - 10, 55, { align: 'right' });
+          doc.text(`${tx('Generado por:', 'Prepared by:')} ${currentUser?.name || tx('Usuario', 'User')}`, 10, 55);
+          doc.text(`${tx('Productos:', 'Products:')} ${validResults.length}`, pageWidth - 10, 55, { align: 'right' });
 
           const tableData = validResults.map(r => {
             const qty = Number(r.boxQty) > 1 ? Number(r.boxQty) : 1;
@@ -3498,11 +3498,11 @@
               ? `Unitario: -${money(unitDiscount)} USD\nCaja x ${qty}: -${money(unitDiscount * qty)} USD`
               : (unitDiscount > 0 ? `-${money(unitDiscount)} USD` : '$0.00 USD');
             return [
-              r.access?.allowed ? 'VENTA PERMITIDA' : (r.access?.msg || 'BLOQUEADO'),
+              r.access?.allowed ? tx('VENTA PERMITIDA', 'SALE ALLOWED') : translateAccessMessage(r.access?.msg || tx('BLOQUEADO', 'BLOCKED')),
               r.sku || 'N/A',
               r.description || r.error || 'Sin descripción',
               r.source || 'No identificado',
-              qty > 1 ? `Caja x ${qty} unds` : 'Unidad',
+              qty > 1 ? (quoteLanguage === 'en' ? `Case x ${qty} units` : `Caja x ${qty} unds`) : tx('Unidad', 'Unit'),
               `${boxPriceLabel(r.listPrice, qty)} USD`,
               `${boxPriceLabel(r.basePrice, qty)} USD`,
               discountText,
@@ -3514,10 +3514,7 @@
           doc.autoTable({
             startY: 60,
             margin: { left: 9, right: 9, bottom: 15 },
-            body: [[
-              'VIGENCIA DE PRECIOS\\n' +
-              'Los precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.'
-            ]],
+            body: [[tx('VIGENCIA DE PRECIOS\\nLos precios aquí presentados son referenciales y pueden cambiar sin previo aviso debido a actualizaciones del fabricante o a cambios en las condiciones comerciales. Su vigencia y valor final deberán confirmarse al momento de solicitar la cotización oficial.', 'PRICE VALIDITY\\nThe prices shown are for reference only and may change without prior notice due to manufacturer updates or changes in commercial conditions. Price validity and final pricing must be confirmed when requesting an official quotation.')]]
             theme: 'plain',
             styles: {
               font: 'helvetica', fontSize: 8, cellPadding: 3.5,
@@ -3535,8 +3532,7 @@
             startY: (doc.lastAutoTable?.finalY || 60) + 5,
             margin: { left: 9, right: 9, bottom: 15 },
             head: [[
-              'Estado / alerta', 'SKU', 'Descripción del producto', 'Nivel / Especialización',
-              'Empaque', 'MSRP · List Price (USD)', 'Precio base (USD)', 'Ahorro promo (USD)', 'Precio FOB Miami (USD)'
+              quoteLanguage === 'en' ? ['Status / Alert', 'SKU', 'Product Description', 'Level / Specialization', 'Packaging', 'MSRP · List Price (USD)', 'Base Price (USD)', 'Promotional Savings (USD)', 'FOB Miami Price (USD)'] : ['Estado / alerta', 'SKU', 'Descripción del producto', 'Nivel / Especialización', 'Empaque', 'MSRP · List Price (USD)', 'Precio base (USD)', 'Ahorro promo (USD)', 'Precio FOB Miami (USD)']
             ]],
             body: tableData,
             theme: 'grid',
@@ -3564,7 +3560,7 @@
             },
             didParseCell: (data) => {
               if (data.section === 'body' && data.column.index === 0) {
-                const permitted = String(data.cell.raw).toUpperCase().includes('PERMITIDA');
+                const permitted = ['PERMITIDA', 'ALLOWED'].some(word => String(data.cell.raw).toUpperCase().includes(word));
                 data.cell.styles.textColor = permitted ? [0, 125, 75] : [180, 45, 45];
                 data.cell.styles.fontStyle = 'bold';
               }
@@ -3576,7 +3572,7 @@
               doc.setFont('helvetica', 'normal');
               doc.setFontSize(7);
               doc.setTextColor(120, 130, 140);
-              doc.text('Documento generado por Zebra Price Desk · Uso interno', 9, pageHeight - 5);
+              doc.text(tx('Documento generado por Zebra Price Desk · Uso interno', 'Document generated by Zebra Price Desk · Internal use'), 9, pageHeight - 5);
               doc.text(`Página ${currentPage}`, pageWidth - 9, pageHeight - 5, { align: 'right' });
             }
           });
@@ -3588,11 +3584,7 @@
             doc.autoTable({
               startY: (doc.lastAutoTable?.finalY || 61) + 7,
               margin: { left: 9, right: 9, bottom: 15 },
-              body: [[
-                'ATENCIÓN · PENDING END OF SALE\n' +
-                'Los siguientes números de parte están próximos a descontinuarse según la lista de precios Zebra: ' + pendingSkus + '. ' +
-                'No se recomienda gestionar su compra sin confirmar previamente el compromiso del cliente, ya que su orden no será cancelable y será facturada.'
-              ]],
+              body: [[tx('ATENCIÓN · PENDING END OF SALE\\nLos siguientes números de parte están próximos a descontinuarse según la lista de precios Zebra: ', 'WARNING · PENDING END OF SALE\\nThe following part numbers are marked as Pending End Of Sale in the Zebra price list: ') + pendingSkus + '. ' + tx('No se recomienda gestionar su compra sin confirmar previamente el compromiso del cliente, ya que su orden no será cancelable y será facturada.', 'Do not proceed with the purchase without first confirming the customer commitment, as the order cannot be cancelled and will be invoiced.')]]
               theme: 'plain',
               styles: {
                 font: 'helvetica', fontSize: 8, cellPadding: 3.5,
@@ -3611,11 +3603,7 @@
           doc.autoTable({
             startY: (doc.lastAutoTable?.finalY || 61) + 7,
             margin: { left: 9, right: 9, bottom: 15 },
-            body: [[
-              'AVISO – COTIZACIÓN REFERENCIAL\n' +
-              'Esta cotización es de carácter exclusivamente referencial y no constituye una oferta comercial ni una cotización oficial de Intcomex. Los precios, la disponibilidad y las condiciones comerciales están sujetos a validación y confirmación por parte de Intcomex.\n' +
-              'Para obtener una cotización oficial, comuníquese con su agente de ventas.'
-            ]],
+            body: [[tx('AVISO – COTIZACIÓN REFERENCIAL\\nEsta cotización es de carácter exclusivamente referencial y no constituye una oferta comercial ni una cotización oficial de Intcomex. Los precios, la disponibilidad y las condiciones comerciales están sujetos a validación y confirmación por parte de Intcomex.\\nPara obtener una cotización oficial, comuníquese con su agente de ventas.', 'REFERENCE QUOTATION NOTICE\\nThis quotation is provided for reference purposes only and does not constitute a commercial offer or an official quotation from Intcomex. Prices, availability, and commercial terms are subject to validation and confirmation by Intcomex.\\nTo obtain an official quotation, please contact your sales representative.')]]
             theme: 'plain',
             styles: {
               font: 'helvetica', fontSize: 8, cellPadding: 3.5,
@@ -3629,9 +3617,9 @@
             }
           });
 
-          doc.save(`Cotizacion_Zebra_${new Date().getTime()}.pdf`);
+          doc.save((quoteLanguage === 'en' ? 'Zebra_Quotation_' : 'Cotizacion_Zebra_') + Date.now() + '.pdf');
 
-        } catch (e) { console.error('Error al exportar PDF:',e); alert('Ocurrió un error al generar el PDF.'); }
+        } catch (e) { console.error('Error al exportar PDF:',e); alert(tx('Ocurrió un error al generar el PDF.', 'An error occurred while generating the PDF.')); }
 
       };
 
