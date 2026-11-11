@@ -3472,8 +3472,8 @@
           : ['', 'Ten en cuenta que esta cotización es de carácter referencial. Los precios, la disponibilidad y las condiciones comerciales pueden cambiar sin previo aviso y deberán confirmarse al solicitar la cotización oficial.', '', 'Quedamos atentos a cualquier inquietud o información adicional que requieras.', '', 'Cordialmente,', currentUser?.name || 'Equipo Zebra', 'Intcomex'];
 
         const body = [...header, ...productLines, ...pendingNotice, ...closing].join('\n');
-        const outlookUrl = 'https://outlook.office.com/mail/deeplink/compose?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-        window.open(outlookUrl, '_blank', 'noopener,noreferrer');
+        const mailtoUrl = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+        window.location.href = mailtoUrl;
       };
 
       const exportToPDF = async () => {
