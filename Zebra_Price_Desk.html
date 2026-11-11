@@ -930,7 +930,7 @@
 
     const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
     // Actualizar también version.txt cada vez que se publique una nueva versión.
-    const APP_VERSION = '202611111430';
+    const APP_VERSION = '202611111650';
     const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/nickoperea/cotizdor/main/version.txt';
 
 
@@ -2797,7 +2797,15 @@
 
           country = partnerObj['E'] || partnerObj['col_4'] || 'Colombia';
 
-          if (clean(partnerObj['AC']) === 'SUB - DISTRIBUTOR' || clean(partnerObj['AC']) === 'SUB-DISTRIBUTOR') {
+          // Sub - Distributor es un nivel de partner, no una especialización.
+          // Detectarlo por el valor exacto en cualquier campo de la fila evita depender
+          // exclusivamente de la columna AC o de una única variante de escritura.
+          const isSubDistributorLevel = Object.values(partnerObj).some(value => {
+            const normalizedValue = clean(value).replace(/[^A-Z0-9]+/g, ' ').trim();
+            return normalizedValue === 'SUB DISTRIBUTOR' || normalizedValue === 'AUTHORIZED SUB DISTRIBUTOR';
+          });
+
+          if (isSubDistributorLevel) {
 
             isSubDistri = true;
 
