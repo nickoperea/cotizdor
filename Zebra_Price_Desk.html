@@ -930,7 +930,7 @@
 
     const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
     // Actualizar también version.txt cada vez que se publique una nueva versión.
-    const APP_VERSION = '202611111650';
+    const APP_VERSION = '202611111710';
     const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/nickoperea/cotizdor/main/version.txt';
 
 
@@ -3165,7 +3165,9 @@
 
           const categoryAT = clean(originalItem['AT'] || originalItem['col_45'] || getFlexibleValue(originalItem, 'FAMILY') || getFlexibleValue(originalItem, 'LOB') || '');
 
-          const isBarcodeSupply = categoryAT.includes('BARCODE SUPPLIES');
+          // La regla de precio por caja aplica a Barcode Supplies de la lista general,
+          // pero se omite cuando el SKU también está registrado en el DNP.
+          const isBarcodeSupply = !dnpItem && categoryAT.includes('BARCODE SUPPLIES');
 
           
 
