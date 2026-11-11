@@ -3461,7 +3461,7 @@
                 `FOB Miami unit price: USD ${money(result.finalPrice)}`,
                 `FOB Miami case total: USD ${money(result.boxTotal ?? result.finalPrice)}`,
                 `ETA: ${eta}`
-              ].join('\\n')
+              ].join('\n')
             : [
                 `PRODUCTO: ${result.sku || 'N/A'}`,
                 `Descripción: ${description}`,
@@ -3471,7 +3471,7 @@
                 `Precio unitario FOB Miami: USD ${money(result.finalPrice)}`,
                 `Total caja FOB Miami: USD ${money(result.boxTotal ?? result.finalPrice)}`,
                 `ETA: ${eta}`
-              ].join('\\n');
+              ].join('\n');
         });
 
         const pending = products.filter(({ result }) => result.isPendingEndOfSale).map(({ result }) => result.sku);
