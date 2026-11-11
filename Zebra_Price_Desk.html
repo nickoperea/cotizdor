@@ -930,7 +930,7 @@
 
     const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
     // Actualizar también version.txt cada vez que se publique una nueva versión.
-    const APP_VERSION = '202611111015';
+    const APP_VERSION = '202611111345';
     const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/nickoperea/cotizdor/main/version.txt';
 
 
@@ -3361,7 +3361,7 @@
           return;
         }
 
-        const worksheetData = results.filter(Boolean).map(r => ({
+        const worksheetData = results.filter(Boolean).map((r, index) => ({
 
           Cliente: clientName.trim() || 'No especificado',
           SKU: r.sku,
@@ -3494,7 +3494,13 @@
           : ['', '────────────────────────────────────────', '', product]);
         const body = [...header, ...spacedProductLines, ...pendingNotice, ...closing].join('\r\n');
         const mailtoUrl = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-        window.location.href = mailtoUrl;
+        const mailLink = document.createElement('a');
+        mailLink.href = mailtoUrl;
+        mailLink.target = '_blank';
+        mailLink.rel = 'noopener';
+        document.body.appendChild(mailLink);
+        mailLink.click();
+        mailLink.remove();
       };
 
       const exportToPDF = async () => {
