@@ -827,6 +827,7 @@
     .form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .export-toolbar {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 20px;
@@ -840,10 +841,18 @@
     .export-toolbar .export-note { margin: 5px 0 0 38px; }
     .export-toolbar .export-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(130px, 1fr));
-      width: min(100%, 330px);
+      grid-template-columns: repeat(3, minmax(110px, 1fr));
+      width: min(100%, 420px);
       flex: 0 0 auto;
     }
+    .eta-editor { flex: 1 0 100%; min-width: 0; padding-top: 12px; border-top: 1px solid #E6EAF0; }
+    .eta-editor-title { margin: 0 0 9px; color: #3D4855; font-size: 9px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .eta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 9px; }
+    .eta-item { display: grid; gap: 5px; min-width: 0; padding: 9px; border: 1px solid #E0E5EB; border-radius: 10px; background: #F8FAFC; }
+    .eta-item strong { color: #26313D; font-size: 9px; overflow-wrap: anywhere; }
+    .eta-item span { color: #748091; font-size: 8px; line-height: 1.4; }
+    .eta-input { width: 100%; min-width: 0; padding: 9px 10px; border: 1px solid #D5DCE4; border-radius: 8px; background: #FFFFFF; color: #111827; font-size: 10px; outline: none; }
+    .eta-input:focus { border-color: #0073E6; box-shadow: 0 0 0 2px rgba(0,115,230,.1); }
     @media (max-width: 980px) {
       .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
@@ -1545,6 +1554,8 @@
 
       const [partnerNameInput, setPartnerNameInput] = useState('');
       const [clientName, setClientName] = useState('');
+      const [quoteNumber, setQuoteNumber] = useState('');
+      const [etaValues, setEtaValues] = useState([]);
 
       const [showPartnerDropdown, setShowPartnerDropdown] = useState(false);
 
@@ -3261,6 +3272,12 @@
 
         }
 
+        const now = new Date();
+        const pad2 = value => String(value).padStart(2, '0');
+        const generatedQuoteNumber = `ZB-${now.getFullYear()}${pad2(now.getMonth()+1)}${pad2(now.getDate())}-${pad2(now.getHours())}${pad2(now.getMinutes())}${pad2(now.getSeconds())}`;
+        setQuoteNumber(generatedQuoteNumber);
+        setEtaValues(results.map(() => ''));
+
         const quoteId = `Q-${Date.now()}-${Math.floor(Math.random()*100000)}`;
 
         const first = results[0] || {};
@@ -3382,6 +3399,81 @@
 
 
 
+
+      const prepareOutlookEmail = () => {
+        const allResults = getExportResults();
+        const products = allResults.map((result, index) => ({ result, index })).filter(item => item.result && !item.result.error);
+        if (!products.length) {
+          alert(tx('No hay productos con precio disponible para preparar el correo.', 'There are no priced products available to prepare the email.'));
+          return;
+        }
+
+        const money = value => {
+          const number = Number(value);
+          return Number.isFinite(number) ? number.toLocaleString(quoteLanguage === 'en' ? 'en-US' : 'es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A';
+        };
+        const customer = clientName.trim() || tx('Cliente no especificado', 'Customer not specified');
+        const partner = products[0].result.partnerName || (partnerType === 'new' ? newPartnerName : partnerNameInput) || tx('Partner no identificado', 'Partner not identified');
+        const quoteRef = quoteNumber || tx('Pendiente de asignar', 'To be assigned');
+        const subject = quoteLanguage === 'en'
+          ? `Zebra Quotation ${quoteRef} | ${customer}`
+          : `Cotización Zebra ${quoteRef} | ${customer}`;
+
+        const header = quoteLanguage === 'en'
+          ? [
+              'Hello,',
+              '',
+              'Please find below the commercial details of the requested Zebra quotation.',
+              '',
+              `Customer: ${customer}`,
+              `Partner: ${partner}`,
+              `Quotation number: ${quoteRef}`,
+              '',
+              'PRODUCT DETAILS',
+              'SKU | Description | MSRP / List Price (USD) | Promotional Discount (USD) | FOB Miami Unit Price (USD) | ETA'
+            ]
+          : [
+              'Cordial saludo,',
+              '',
+              'Compartimos los detalles comerciales de la cotización Zebra solicitada.',
+              '',
+              `Cliente: ${customer}`,
+              `Partner: ${partner}`,
+              `Número de cotización: ${quoteRef}`,
+              '',
+              'DETALLE DE PRODUCTOS',
+              'SKU | Descripción | MSRP / Precio de lista (USD) | Descuento promocional (USD) | Precio unitario FOB Miami (USD) | ETA'
+            ];
+
+        const productLines = products.map(({ result, index }) => {
+          const eta = String(etaValues[index] || '').trim() || tx('Por confirmar', 'To be confirmed');
+          const description = String(result.description || result.error || '').replace(/[\r\n|]+/g, ' ').trim();
+          return [
+            result.sku || 'N/A',
+            description,
+            money(result.listPrice),
+            money(result.discountApplied ?? 0),
+            money(result.finalPrice),
+            eta
+          ].join(' | ');
+        });
+
+        const pending = products.filter(({ result }) => result.isPendingEndOfSale).map(({ result }) => result.sku);
+        const pendingNotice = pending.length
+          ? (quoteLanguage === 'en'
+              ? ['', 'IMPORTANT · PENDING END OF SALE', `The following part numbers are marked as Pending End Of Sale in the Zebra price list: ${pending.join(', ')}.`, 'Please confirm the customer commitment before proceeding, as orders for these items cannot be cancelled and will be invoiced.']
+              : ['', 'IMPORTANTE · PENDING END OF SALE', `Las siguientes referencias están marcadas como Pending End Of Sale en la lista de precios Zebra: ${pending.join(', ')}.`, 'Por favor confirme previamente el compromiso del cliente antes de continuar, ya que las órdenes de estos productos no serán cancelables y serán facturadas.'])
+          : [];
+
+        const closing = quoteLanguage === 'en'
+          ? ['', 'Please note that this quotation is for reference only. Prices, availability and commercial conditions may change without prior notice and must be confirmed when requesting the official quotation.', '', 'Please let us know if you have any questions or require further assistance.', '', 'Best regards,', currentUser?.name || 'Zebra Team', 'Intcomex']
+          : ['', 'Ten en cuenta que esta cotización es de carácter referencial. Los precios, la disponibilidad y las condiciones comerciales pueden cambiar sin previo aviso y deberán confirmarse al solicitar la cotización oficial.', '', 'Quedamos atentos a cualquier inquietud o información adicional que requieras.', '', 'Cordialmente,', currentUser?.name || 'Equipo Zebra', 'Intcomex'];
+
+        const body = [...header, ...productLines, ...pendingNotice, ...closing].join('\n');
+        const outlookUrl = 'https://outlook.office.com/mail/deeplink/compose?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+        window.open(outlookUrl, '_blank', 'noopener,noreferrer');
+      };
+
       const exportToPDF = async () => {
 
         if (!window.jspdf) { alert(tx('No fue posible cargar el módulo PDF. Recarga la página e intenta de nuevo.', 'The PDF module could not be loaded. Reload the page and try again.')); return; }
@@ -3489,6 +3581,7 @@
           doc.setFontSize(7.5);
           doc.setTextColor(105, 115, 125);
           doc.text(`${tx('Generado por:', 'Prepared by:')} ${currentUser?.name || tx('Usuario', 'User')}`, 10, 55);
+          doc.text(`${tx('Cotización:', 'Quote:')} ${quoteNumber || 'N/A'}`, pageWidth - 54, 55);
           doc.text(`${tx('Productos:', 'Products:')} ${validResults.length}`, pageWidth - 10, 55, { align: 'right' });
 
           const tableData = validResults.map(r => {
@@ -3617,7 +3710,7 @@
             }
           });
 
-          doc.save((quoteLanguage === 'en' ? 'Zebra_Quotation_' : 'Cotizacion_Zebra_') + Date.now() + '.pdf');
+          doc.save((quoteLanguage === 'en' ? 'Zebra_Quotation_' : 'Cotizacion_Zebra_') + (quoteNumber || Date.now()) + '.pdf');
 
         } catch (e) { console.error('Error al exportar PDF:',e); alert(tx('Ocurrió un error al generar el PDF.', 'An error occurred while generating the PDF.')); }
 
@@ -4016,6 +4109,20 @@
                       <div className="export-grid">
                         <button className="export-button" onClick={exportToPDF}><Icon name="printer" size={15}/> PDF</button>
                         <button className="export-button" onClick={exportToExcel}><Icon name="file" size={15}/> Excel</button>
+                        <button className="export-button" onClick={prepareOutlookEmail}><Icon name="mail" size={15}/> {tx('Correo', 'Email')}</button>
+                      </div>
+                      <div className="eta-editor">
+                        <p className="eta-editor-title">{tx('ETA por producto · Opcional', 'ETA by product · Optional')}</p>
+                        <div className="eta-grid">
+                          {getExportResults().map((result, index) => result && !result.error ? (
+                            <label className="eta-item" key={result.sku + '-' + index}>
+                              <strong>{result.sku}</strong>
+                              <span>{result.description || tx('Tiempo estimado de entrega', 'Estimated delivery time')}</span>
+                              <input className="eta-input" type="text" value={etaValues[index] || ''} onChange={event => setEtaValues(values => { const next = [...values]; next[index] = event.target.value; return next; })} placeholder={tx('Ej. 2 a 3 semanas', 'e.g. 2 to 3 weeks')} />
+                            </label>
+                          ) : null)}
+                        </div>
+                        <p className="export-note">{tx('Si dejas un ETA vacío, el correo indicará “Por confirmar”.', 'If an ETA is left blank, the email will show “To be confirmed”.')}</p>
                       </div>
                     </section>
                   )}
