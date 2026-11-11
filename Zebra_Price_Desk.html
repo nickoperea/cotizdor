@@ -3430,7 +3430,7 @@
               `Quotation number: ${quoteRef}`,
               '',
               'PRODUCT DETAILS',
-              'SKU | Description | Packaging | MSRP / List Price (USD) | Promotional Discount (USD) | FOB Miami Unit Price (USD) | FOB Miami Case Total (USD) | ETA'
+              'The details for each product are listed separately below.'
             ]
           : [
               'Cordial saludo,',
@@ -3442,22 +3442,36 @@
               `Número de cotización: ${quoteRef}`,
               '',
               'DETALLE DE PRODUCTOS',
-              'SKU | Descripción | Empaque | MSRP / Precio de lista (USD) | Descuento promocional (USD) | Precio unitario FOB Miami (USD) | Total caja FOB Miami (USD) | ETA'
+              'A continuación encontrarás el detalle individual de cada producto.'
             ];
 
         const productLines = products.map(({ result, index }) => {
           const eta = String(etaValues[index] || '').trim() || tx('Por confirmar', 'To be confirmed');
           const description = String(result.description || result.error || '').replace(/[\r\n|]+/g, ' ').trim();
-          return [
-            result.sku || 'N/A',
-            description,
-            Number(result.boxQty) > 1 ? (quoteLanguage === 'en' ? `Case x ${result.boxQty} units` : `Caja x ${result.boxQty} unds`) : (quoteLanguage === 'en' ? 'Unit' : 'Unidad'),
-            money(result.listPrice),
-            money(result.discountApplied ?? 0),
-            money(result.finalPrice),
-            money(result.boxTotal ?? result.finalPrice),
-            eta
-          ].join(' | ');
+          const packaging = Number(result.boxQty) > 1
+            ? (quoteLanguage === 'en' ? `Case x ${result.boxQty} units` : `Caja x ${result.boxQty} unds`)
+            : (quoteLanguage === 'en' ? 'Unit' : 'Unidad');
+          return quoteLanguage === 'en'
+            ? [
+                `PRODUCT: ${result.sku || 'N/A'}`,
+                `Description: ${description}`,
+                `Packaging: ${packaging}`,
+                `MSRP / List price: USD ${money(result.listPrice)}`,
+                `Promotional discount: USD ${money(result.discountApplied ?? 0)}`,
+                `FOB Miami unit price: USD ${money(result.finalPrice)}`,
+                `FOB Miami case total: USD ${money(result.boxTotal ?? result.finalPrice)}`,
+                `ETA: ${eta}`
+              ].join('\\n')
+            : [
+                `PRODUCTO: ${result.sku || 'N/A'}`,
+                `Descripción: ${description}`,
+                `Empaque: ${packaging}`,
+                `MSRP / Precio de lista: USD ${money(result.listPrice)}`,
+                `Descuento promocional: USD ${money(result.discountApplied ?? 0)}`,
+                `Precio unitario FOB Miami: USD ${money(result.finalPrice)}`,
+                `Total caja FOB Miami: USD ${money(result.boxTotal ?? result.finalPrice)}`,
+                `ETA: ${eta}`
+              ].join('\\n');
         });
 
         const pending = products.filter(({ result }) => result.isPendingEndOfSale).map(({ result }) => result.sku);
