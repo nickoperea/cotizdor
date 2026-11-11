@@ -921,7 +921,7 @@
 
     const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
     // Actualizar también version.txt cada vez que se publique una nueva versión.
-    const APP_VERSION = '202611101700';
+    const APP_VERSION = '202611102045';
     const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/nickoperea/cotizdor/main/version.txt';
 
 
@@ -3531,9 +3531,9 @@
           doc.autoTable({
             startY: (doc.lastAutoTable?.finalY || 60) + 5,
             margin: { left: 9, right: 9, bottom: 15 },
-            head: [[
+            head: [
               quoteLanguage === 'en' ? ['Status / Alert', 'SKU', 'Product Description', 'Level / Specialization', 'Packaging', 'MSRP · List Price (USD)', 'Base Price (USD)', 'Promotional Savings (USD)', 'FOB Miami Price (USD)'] : ['Estado / alerta', 'SKU', 'Descripción del producto', 'Nivel / Especialización', 'Empaque', 'MSRP · List Price (USD)', 'Precio base (USD)', 'Ahorro promo (USD)', 'Precio FOB Miami (USD)']
-            ]],
+            ],
             body: tableData,
             theme: 'grid',
             tableWidth: 'auto',
