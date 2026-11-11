@@ -930,7 +930,7 @@
 
     const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
     // Actualizar también version.txt cada vez que se publique una nueva versión.
-    const APP_VERSION = '202611102045';
+    const APP_VERSION = '202611110900';
     const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/nickoperea/cotizdor/main/version.txt';
 
 
@@ -2470,7 +2470,7 @@
             <strong><Icon name="refresh" size={16}/> Nueva versión disponible</strong>
             <span>El cotizador Zebra Price Desk recibió una nueva actualización. Para disfrutar de las últimas mejoras y funcionalidades, por favor, recarga la página.</span>
           </div>
-          <button type="button" className="app-update-button" onClick={() => window.location.reload()}><Icon name="refresh" size={14}/> Recargar cotizador</button>
+          <button type="button" className="app-update-button" onClick={() => { const refreshUrl = new URL(window.location.href); refreshUrl.searchParams.set('_zpd_reload', Date.now().toString()); window.location.replace(refreshUrl.toString()); }}><Icon name="refresh" size={14}/> Recargar cotizador</button>
         </div>
       ) : null;
 
