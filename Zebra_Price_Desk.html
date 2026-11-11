@@ -3485,7 +3485,8 @@
           ? ['', 'Please note that this quotation is for reference only. Prices, availability and commercial conditions may change without prior notice and must be confirmed when requesting the official quotation.', '', 'Please let us know if you have any questions or require further assistance.', '', 'Best regards,', currentUser?.name || 'Zebra Team', 'Intcomex']
           : ['', 'Ten en cuenta que esta cotización es de carácter referencial. Los precios, la disponibilidad y las condiciones comerciales pueden cambiar sin previo aviso y deberán confirmarse al solicitar la cotización oficial.', '', 'Quedamos atentos a cualquier inquietud o información adicional que requieras.', '', 'Cordialmente,', currentUser?.name || 'Equipo Zebra', 'Intcomex'];
 
-        const body = [...header, ...productLines, ...pendingNotice, ...closing].join('\n');
+        const spacedProductLines = productLines.flatMap((product, index) => index === 0 ? [product] : ['', product]);
+        const body = [...header, ...spacedProductLines, ...pendingNotice, ...closing].join('\n');
         const mailtoUrl = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
         window.location.href = mailtoUrl;
       };
