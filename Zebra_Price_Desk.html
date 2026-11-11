@@ -3430,7 +3430,7 @@
               `Quotation number: ${quoteRef}`,
               '',
               'PRODUCT DETAILS',
-              'SKU | Description | MSRP / List Price (USD) | Promotional Discount (USD) | FOB Miami Unit Price (USD) | ETA'
+              'SKU | Description | Packaging | MSRP / List Price (USD) | Promotional Discount (USD) | FOB Miami Unit Price (USD) | FOB Miami Case Total (USD) | ETA'
             ]
           : [
               'Cordial saludo,',
@@ -3442,7 +3442,7 @@
               `Número de cotización: ${quoteRef}`,
               '',
               'DETALLE DE PRODUCTOS',
-              'SKU | Descripción | MSRP / Precio de lista (USD) | Descuento promocional (USD) | Precio unitario FOB Miami (USD) | ETA'
+              'SKU | Descripción | Empaque | MSRP / Precio de lista (USD) | Descuento promocional (USD) | Precio unitario FOB Miami (USD) | Total caja FOB Miami (USD) | ETA'
             ];
 
         const productLines = products.map(({ result, index }) => {
@@ -3451,9 +3451,11 @@
           return [
             result.sku || 'N/A',
             description,
+            Number(result.boxQty) > 1 ? (quoteLanguage === 'en' ? `Case x ${result.boxQty} units` : `Caja x ${result.boxQty} unds`) : (quoteLanguage === 'en' ? 'Unit' : 'Unidad'),
             money(result.listPrice),
             money(result.discountApplied ?? 0),
             money(result.finalPrice),
+            money(result.boxTotal ?? result.finalPrice),
             eta
           ].join(' | ');
         });
