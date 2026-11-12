@@ -1000,43 +1000,40 @@
 
   
 
-    /* Corrección de desbordamiento de ETA en pantallas móviles */
+    /* Corrección robusta del ancho del bloque ETA en móviles */
     @media (max-width: 680px) {
-      .eta-editor {
-        display: block;
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        flex: 1 1 100%;
-        overflow: hidden;
+      .export-toolbar {
+        display: flex; flex-direction: column; align-items: stretch;
+        width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box;
+      }
+      .export-toolbar > * {
+        width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box;
+      }
+      .export-toolbar .export-grid {
+        flex: 0 0 auto; width: 100%; max-width: 100%; min-width: 0;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .export-toolbar .eta-editor {
+        display: block; align-self: stretch; flex: 0 0 auto;
+        width: 100%; max-width: 100%; min-width: 0;
+        margin: 0; padding: 12px 0 0; box-sizing: border-box; overflow: hidden;
       }
       .eta-grid {
-        display: grid;
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        grid-template-columns: minmax(0, 1fr) !important;
+        display: grid; grid-template-columns: minmax(0, 1fr) !important;
+        width: 100%; max-width: 100%; min-width: 0; gap: 9px; box-sizing: border-box;
       }
       .eta-item {
-        display: grid;
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        grid-template-columns: minmax(0, 1fr);
-        overflow: hidden;
+        display: grid; grid-template-columns: minmax(0, 1fr);
+        width: 100%; max-width: 100%; min-width: 0; margin: 0;
+        padding: 9px; box-sizing: border-box; overflow: hidden;
       }
       .eta-item strong, .eta-item span {
-        min-width: 0;
-        max-width: 100%;
-        overflow-wrap: anywhere;
-        word-break: break-word;
+        display: block; width: 100%; max-width: 100%; min-width: 0;
+        overflow-wrap: anywhere; word-break: break-word;
       }
       .eta-input {
-        display: block;
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        box-sizing: border-box;
+        display: block; width: 100%; max-width: 100%; min-width: 0;
+        margin: 0; box-sizing: border-box;
       }
     }
 
@@ -1072,7 +1069,7 @@
 
     const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
     // Actualizar también version.txt cada vez que se publique una nueva versión.
-    const APP_VERSION = '202611112330';
+    const APP_VERSION = '202611112345';
     const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/nickoperea/cotizdor/main/version.txt';
 
 
