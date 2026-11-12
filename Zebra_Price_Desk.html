@@ -901,7 +901,104 @@
     .app-update-button:hover { background:#92400E; }
     @media (max-width:640px) { .app-update-notice { align-items:stretch; flex-direction:column; margin:10px; } .app-update-button { width:100%; } }
 
-</style>
+
+
+    /* Experiencia móvil: ajustes visuales sin modificar el motor de cotización */
+    @media (max-width: 680px) {
+      html, body, #root { width: 100%; max-width: 100%; overflow-x: hidden; }
+      .app-shell { width: 100%; overflow-x: clip; }
+      .top-alert { padding: 9px 12px; line-height: 1.45; letter-spacing: .08em; }
+      .notice-bar { align-items: flex-start; gap: 10px; padding: 11px 13px; }
+      .notice-copy { min-width: 0; line-height: 1.5; }
+      .notice-link { max-width: 100%; white-space: normal; }
+      .header-inner { width: 100%; padding: 13px 14px; flex-direction: column; align-items: stretch; gap: 12px; }
+      .brand { width: 100%; flex-wrap: nowrap; align-items: center; gap: 9px; }
+      .brand-name-block { flex: 1 1 auto; }
+      .brand-title { font-size: 15px; }
+      .brand-subtitle { font-size: 7px; letter-spacing: .07em; line-height: 1.4; }
+      .partner-logos { flex: 0 1 auto; gap: 4px; }
+      .partner-logo-tile { min-width: 0; width: auto; max-width: 88px; height: 31px; padding: 4px 6px; }
+      .partner-logo-tile img, .partner-logo-tile.intcomex-logo-tile img { max-width: 76px; max-height: 20px; }
+      .partner-logo-tile.zebra-logo-tile img { max-width: 66px; }
+      .partner-logos-divider { font-size: 10px; }
+      .header-actions { width: 100%; justify-content: space-between; gap: 8px; }
+      .user-block { margin-left: auto; }
+      .page { width: 100%; padding: 15px 11px 22px; }
+      .page-title { font-size: clamp(21px, 6vw, 26px); }
+      .page-description { font-size: 11px; }
+      .layout, .sidebar, .content-column { width: 100%; min-width: 0; }
+      .sidebar { grid-template-columns: minmax(0, 1fr); }
+      .panel { min-width: 0; border-radius: 14px; }
+      .panel-pad, .form-body, .result-panel, .admin-panel { padding: 13px; }
+      .panel-heading, .result-topline, .admin-panel-heading { align-items: flex-start; flex-wrap: wrap; }
+      .quote-panel-top { padding: 14px 13px; }
+      .quote-language-control { gap: 7px; }
+      .segmented-row { gap: 8px; }
+      .segmented { min-width: 0; }
+      .segmented .tab-button { min-height: 40px; padding: 9px 8px; font-size: 9px; }
+      .form-grid { grid-template-columns: minmax(0, 1fr) !important; gap: 13px; }
+      .field-input, .field-select, .field-textarea, .promo-filter-input, .eta-input { min-height: 43px; font-size: 16px; }
+      .field-textarea { min-height: 110px; }
+      .primary-button, .secondary-button, .export-button, .sync-button, .logout-button { min-height: 43px; }
+      .export-toolbar { width: 100%; align-items: stretch; flex-direction: column; gap: 11px; padding: 13px; }
+      .export-toolbar .export-grid { width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .export-button { padding: 9px 7px; font-size: 9px; }
+      .eta-grid { grid-template-columns: minmax(0, 1fr); }
+      .result-main { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+      .price-card { min-height: 125px; padding: 16px; }
+      .price-value { font-size: clamp(25px, 8vw, 32px); }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+      .metric { padding: 10px; }
+      .metric-label { font-size: 7px; line-height: 1.4; }
+      .metric-value { font-size: 10px; }
+      .badge-row { gap: 5px; }
+      .status-badge { white-space: normal; line-height: 1.35; }
+      .eos-warning { padding: 12px; font-size: 9px; }
+      .error-card { padding: 13px; }
+      .module-nav { display: flex; width: 100%; }
+      .module-nav-button { flex: 1 1 0; min-width: 0; padding: 9px 6px; font-size: 9px; }
+      .admin-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .admin-stat { min-width: 0; padding: 10px; }
+      .admin-stat-value { font-size: 20px; overflow-wrap: anywhere; }
+      .admin-grid-two { grid-template-columns: minmax(0, 1fr); }
+      .admin-method-grid { grid-template-columns: minmax(0, 1fr); }
+      .promo-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .promo-summary-card { padding: 12px; min-width: 0; }
+      .promo-summary-value { font-size: 21px; }
+      .promo-filter-row, .promo-crud-grid { grid-template-columns: minmax(0, 1fr); }
+      .promo-crud-wide { grid-column: auto; }
+      .promo-crud-access { grid-template-columns: minmax(0, 1fr); }
+      .promo-crud-actions { align-items: stretch; }
+      .data-sync-meta { justify-content: flex-start; flex-wrap: wrap; padding: 0 3px; font-size: 9px; }
+      .app-update-notice { margin: 10px 0; padding: 12px; }
+      .app-update-copy strong { font-size: 12px; }
+      .app-update-copy span { font-size: 11px; }
+      .footer-note { font-size: 9px; }
+      /* Las tablas densas conservan sus columnas y permiten desplazamiento táctil dentro del contenedor. */
+      .table-wrap, .admin-table-wrap { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .results-table { min-width: 700px; table-layout: auto; }
+      .results-table th, .results-table td { padding: 9px 7px; font-size: 8px; }
+      .admin-table { min-width: 560px; }
+      .promo-table { min-width: 760px; }
+    }
+
+    @media (max-width: 390px) {
+      .header-inner { padding-left: 10px; padding-right: 10px; }
+      .brand { gap: 6px; }
+      .brand-title { font-size: 13px; }
+      .brand-subtitle { font-size: 6px; }
+      .partner-logo-tile { max-width: 72px; height: 28px; padding: 3px 4px; }
+      .partner-logo-tile img, .partner-logo-tile.intcomex-logo-tile img { max-width: 62px; }
+      .partner-logo-tile.zebra-logo-tile img { max-width: 54px; }
+      .page { padding-left: 9px; padding-right: 9px; }
+      .export-toolbar .export-grid { grid-template-columns: minmax(0, 1fr); }
+      .metric-grid { gap: 6px; }
+      .metric { padding: 8px; }
+      .promo-summary-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+
+  </style>
 
 </head>
 
@@ -933,7 +1030,7 @@
 
     const DEFAULT_PROMOTIONS_SHEET_ID = '1Iw6TYWQ9oHSqISxvsjGkhx9kGFRNAsgh8U3oblIZQ0E';
     // Actualizar también version.txt cada vez que se publique una nueva versión.
-    const APP_VERSION = '202611111710';
+    const APP_VERSION = '202611112300';
     const VERSION_CHECK_URL = 'https://raw.githubusercontent.com/nickoperea/cotizdor/main/version.txt';
 
 
