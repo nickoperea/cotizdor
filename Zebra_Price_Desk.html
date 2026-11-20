@@ -2968,7 +2968,9 @@
 
 
 
-        const effectiveRegion = manualRegion || getRegionForCountry(country);
+        const effectiveRegion = partnerType === 'new'
+          ? manualRegion
+          : getRegionForCountry(country);
 
         const accessCode = priceItem ? (priceItem['Access Code'] || priceItem['B'] || '1-Open') : '1-Open';
 
